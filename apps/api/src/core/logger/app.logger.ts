@@ -35,7 +35,7 @@ export class AppLogger implements Logger, TimeLogger {
         const { msg, ...rest } = message as any;
         log += `${msg}\u001b[39m`;
 
-        if (durationMs !== undefined) {
+        if (typeof durationMs === 'number') {
           log += ` +${(durationMs / 1000).toFixed(3)}s`;
         }
 
