@@ -11,30 +11,30 @@ import { AuthService } from '../services';
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
-  constructor(private readonly AuthService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('sign-up')
   @ResponseInfo()
   public async signUp(@Body() body: SignUpBodyDTO): Promise<void> {
-    await this.AuthService.signUp(body);
+    await this.authService.signUp(body);
   }
 
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
   @ResponseInfo()
   public async signIn(@Body() body: SignInBodyDTO, @Res({ passthrough: true }) response: Response): Promise<void> {
-    await this.AuthService.signIn(body, response);
+    await this.authService.signIn(body, response);
   }
 
   @Post('sign-out')
   @ResponseInfo()
   public signOut(@Res({ passthrough: true }) response: Response): void {
-    this.AuthService.signOut(response);
+    this.authService.signOut(response);
   }
 
   @Post('refresh-tokens')
   @ResponseInfo()
   public async refreshTokens(@Res({ passthrough: true }) response: Response): Promise<void> {
-    await this.AuthService.refreshTokens(response.req.cookies[COOKIE_KEY.REFRESH_TOKEN], response);
+    await this.authService.refreshTokens(response.req.cookies[COOKIE_KEY.REFRESH_TOKEN], response);
   }
 }

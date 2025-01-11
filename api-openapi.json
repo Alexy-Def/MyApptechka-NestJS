@@ -61,6 +61,14 @@
         "responses": { "200": { "description": "" } },
         "tags": ["auth"]
       }
+    },
+    "/api/v1/first-aid-kid": {
+      "get": {
+        "operationId": "FirstAidKidsController_getMyFirstAidKids",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["first-aid-kid"]
+      }
     }
   },
   "info": { "title": "template", "description": "", "version": "0.1.0", "contact": {} },
