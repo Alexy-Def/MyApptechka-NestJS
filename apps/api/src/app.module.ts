@@ -9,6 +9,7 @@ import { ExceptionsModule } from '@modules/core/exceptions';
 import { AppLoggerFactory, LoggingInterceptor } from '@modules/core/logger';
 import { SentryModule } from '@modules/core/sentry';
 import { ValidationModule } from '@modules/core/validation';
+import { FirstAidKidModule } from '@modules/first-aid-kid';
 import { GeneralModule } from '@modules/general';
 import { HealthCheckModule } from '@modules/health-check';
 import { UsersModule } from '@modules/users';
@@ -34,6 +35,7 @@ import ormconfig from 'ormconfig';
     UsersModule,
     HealthCheckModule,
     AuthModule,
+    FirstAidKidModule,
   ],
   controllers: [],
   providers: [
