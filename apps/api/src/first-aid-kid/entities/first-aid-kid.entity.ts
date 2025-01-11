@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 
 import { BaseEntity } from '@modules/core/entities';
+import { DrugEntity } from '@modules/first-aid-kid/entities';
 
 @Entity({ name: 'first_aid_kid' })
 export class FirstAidKidEntity extends BaseEntity {
@@ -18,6 +19,9 @@ export class FirstAidKidEntity extends BaseEntity {
 
   @Column()
   public imageUrl: string;
+
+  @OneToMany(() => DrugEntity, (drug) => drug.firstAidKid)
+  public drugs?: DrugEntity[];
 
   //   @Column()
   //   public userId: number;
