@@ -1,2 +1,1 @@
-export * from './users-validation.service';
-export * from './users.service';
+export * from './user.service';

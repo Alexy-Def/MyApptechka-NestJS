@@ -1,19 +1,27 @@
-import { ApiPropertyBoolean, ApiPropertyEmail, ApiPropertyString } from '@ppx-node/api-decorators';
-import { Expose } from 'class-transformer';
+import { ApiPropertyString } from '@ppx-node/api-decorators';
+import { IsEmail, Matches } from 'class-validator';
 
-class CredentialsDTO {
-  @ApiPropertyEmail()
+import { AUTH_CONSTANTS, NEW_AUTH_ERRORS } from '../constants';
+
+export class SignInBodyDTO {
+  @ApiPropertyString()
   public email: string;
 
   @ApiPropertyString()
   public password: string;
 }
 
-export class SignUpBodyDTO extends CredentialsDTO {}
-export class SignInBodyDTO extends CredentialsDTO {}
+export class SignUpBodyDTO {
+  @IsEmail()
+  @ApiPropertyString()
+  public email: string;
 
-export class SignInResponseDTO {
-  @Expose()
-  @ApiPropertyBoolean()
-  isTfaEnabled: boolean;
+  @ApiPropertyString()
+  @Matches(AUTH_CONSTANTS.PASSWORD_REGEX, {
+    message: NEW_AUTH_ERRORS.INVALID_PASSWORD_PATTERN,
+  })
+  public password: string;
+
+  @ApiPropertyString()
+  public username: string;
 }

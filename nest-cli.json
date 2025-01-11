@@ -64,12 +64,22 @@
       "compilerOptions": {
         "tsConfigPath": "libs/nestjs-logger/tsconfig.lib.json"
       }
+    },
+    "dtos": {
+      "type": "library",
+      "root": "libs/dtos",
+      "entryFile": "index",
+      "sourceRoot": "libs/dtos/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/dtos/tsconfig.lib.json"
+      }
     }
   },
   "compilerOptions": {
     "builder": "webpack",
     "tsConfigPath": "apps/api/tsconfig.app.json",
-    "assets": ["**/*.handlebars"]
+    "assets": ["**/*.handlebars"],
+    "webpack": true
   },
   "monorepo": true,
   "root": "apps/api"

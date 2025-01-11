@@ -1,3 +1,2 @@
-export * from './cookies.helper';
-export * from './password.helpers';
-export * from './tfa.helpers';
+export * from './password.helper';
+export * from './cookie.helper';

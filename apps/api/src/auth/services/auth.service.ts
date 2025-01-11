@@ -1,76 +1,121 @@
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
 
 import { ServiceError, UnauthorizedError } from '@modules/core/exceptions';
-import { USER_STATUS, USER_ROLE, UsersService, UsersValidationService } from '@modules/users';
+import { USER_ROLE } from '@modules/users/constants';
+import { UserService } from '@modules/users/services';
+import { AUTH } from 'config';
 
-import { AUTH_ERROR, PASSWORD_HASH_SALT_ROUNDS } from '../constants';
-import { compare, hash } from '../helpers';
-import { TokensPair } from '../types';
-
-import { AuthTokensService } from './auth-tokens.service';
-import { EmailConfirmationService } from './email-confirmation.service';
+import { AUTH_CONSTANTS, NEW_AUTH_ERRORS } from '../constants';
+import { compare, hash, setCookie, clearCookie } from '../helpers';
+import { SignUpData, SignInData, Tokens, UserAuthData } from '../types';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly authTokensService: AuthTokensService,
-    private readonly emailConfirmationService: EmailConfirmationService,
-    private readonly usersValidationService: UsersValidationService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly userService: UserService, private readonly jwtService: JwtService) {}
 
-  public async signUp(email: string, password: string): Promise<TokensPair | undefined> {
-    const normalizedEmail = this.usersValidationService.normalizeEmailOrFail(email);
-    const existedUser = await this.usersService.findUser({ normalizedEmail });
+  public async signUp({ email, password, username }: SignUpData): Promise<void> {
+    const existedUser = await this.userService.getUser(email);
 
-    if (existedUser && existedUser.status !== USER_STATUS.PENDING) {
-      throw new ServiceError(AUTH_ERROR.EMAIL_IS_ALREADY_USED);
+    if (existedUser) {
+      throw new ServiceError(NEW_AUTH_ERRORS.EMAIL_ALREADY_USED);
     }
 
-    if (!existedUser) {
-      const hashedPassword = await hash(password, PASSWORD_HASH_SALT_ROUNDS);
-      const user = {
-        email,
-        normalizedEmail,
-        password: hashedPassword,
-        role: USER_ROLE.USER,
-      };
-      const userId = await this.usersService.createUser(user);
-      await this.emailConfirmationService.sendLink(normalizedEmail, userId);
+    const hashedPassword = await hash(password, AUTH_CONSTANTS.PASSWORD_HASH_SALT_ROUNDS);
 
-      return this.authTokensService.createTokensPair({ id: userId, ...user });
-    }
-
-    await this.emailConfirmationService.resendLink(normalizedEmail);
+    const user = {
+      email,
+      password: hashedPassword,
+      username,
+      role: USER_ROLE.USER,
+    };
+    await this.userService.createUser(user);
   }
 
-  public async signIn(email: string, password: string): Promise<{ accessToken: string; isTfaEnabled: boolean }> {
-    const normalizedEmail = this.usersValidationService.normalizeEmailOrFail(email);
-    const user = await this.usersService.findUser({ normalizedEmail });
+  public async signIn({ email, password }: SignInData, response: Response): Promise<void> {
+    const user = await this.userService.getUser(email);
 
     if (!user) {
-      throw new UnauthorizedError(AUTH_ERROR.INVALID_EMAIL);
-    }
-
-    if (user.status === USER_STATUS.PENDING) {
-      throw new UnauthorizedError(AUTH_ERROR.EMAIL_IS_NOT_CONFIRMED);
+      throw new UnauthorizedError(NEW_AUTH_ERRORS.INVALID_EMAIL);
     }
 
     const isPasswordCorrect = await compare(password, user.password);
 
     if (!isPasswordCorrect) {
-      throw new UnauthorizedError(AUTH_ERROR.INVALID_PASSWORD);
+      throw new UnauthorizedError(NEW_AUTH_ERRORS.INVALID_PASSWORD);
     }
 
-    return { accessToken: this.authTokensService.createAccessToken(user), isTfaEnabled: !!user.tfaSecret };
+    const tokens = this.createTokens({ id: user.id, role: user.role });
+    await this.saveRefreshToken(user.id, tokens.refreshToken);
+    setCookie(tokens, response);
   }
 
-  public async renewTokens(refreshToken: string): Promise<TokensPair> {
-    return this.authTokensService.renewTokensPair(refreshToken);
+  public signOut(response: Response): void {
+    clearCookie(response);
   }
 
-  public async logOut(refreshToken: string): Promise<void> {
-    const { id, user } = this.authTokensService.decodeRefreshToken(refreshToken);
-    await this.authTokensService.deactivateRefreshToken(id, user.id);
+  public createTokens(user: UserAuthData): Tokens {
+    const accessToken = this.createAccessToken(user);
+    const refreshToken = this.createRefreshToken(user);
+
+    return { accessToken, refreshToken };
+  }
+
+  public createAccessToken(user: UserAuthData): string {
+    return this.jwtService.sign(
+      {
+        id: user.id,
+        role: user.role,
+      },
+      {
+        expiresIn: AUTH.ACCESS_TOKEN_EXPIRES_IN,
+        secret: AUTH.ACCESS_JWT_SECRET,
+      },
+    );
+  }
+
+  public createRefreshToken(user: UserAuthData): string {
+    const refreshToken = this.jwtService.sign(
+      {
+        id: user.id,
+        role: user.role,
+      },
+      {
+        expiresIn: AUTH.REFRESH_TOKEN_EXPIRES_IN,
+        secret: AUTH.REFRESH_JWT_SECRET,
+      },
+    );
+
+    return refreshToken;
+  }
+
+  public decodedRefreshToken(refreshToken: string): UserAuthData {
+    try {
+      return this.jwtService.verify(refreshToken, { secret: AUTH.REFRESH_JWT_SECRET });
+    } catch (error) {
+      throw new ServiceError(NEW_AUTH_ERRORS.INVALID_REFRESH_TOKEN);
+    }
+  }
+
+  public async refreshTokens(refreshToken: string, response: Response): Promise<void> {
+    const refreshTokenPayload = this.decodedRefreshToken(refreshToken);
+    const user = await this.userService.getUserByIdOrFail(refreshTokenPayload.id);
+
+    if (refreshToken !== user.refreshToken) {
+      throw new ServiceError(NEW_AUTH_ERRORS.INVALID_REFRESH_TOKEN);
+    }
+
+    const accessToken = this.createAccessToken(user);
+
+    return setCookie({ accessToken }, response);
+  }
+
+  public async saveRefreshToken(userId: number, refreshToken: string): Promise<void> {
+    await this.userService.updateRefreshToken(userId, refreshToken);
+  }
+
+  public async deleteRefreshToken(userId: number): Promise<void> {
+    await this.userService.updateRefreshToken(userId, null);
   }
 }

@@ -28,7 +28,9 @@
       "@libs/s3": ["libs/s3/src"],
       "@libs/s3/*": ["libs/s3/src/*"],
       "@libs/nestjs-logger": ["libs/nestjs-logger/src"],
-      "@libs/nestjs-logger/*": ["libs/nestjs-logger/src/*"]
+      "@libs/nestjs-logger/*": ["libs/nestjs-logger/src/*"],
+      "@libs/dtos": ["libs/dtos/src"],
+      "@libs/dtos/*": ["libs/dtos/src/*"]
     }
   },
   "exclude": ["node_modules", "dist"],

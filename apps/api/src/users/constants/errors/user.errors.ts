@@ -1,0 +1,3 @@
+export enum USER_ERRORS {
+  USER_NOT_FOUND = 'USER_NOT_FOUND',
+}

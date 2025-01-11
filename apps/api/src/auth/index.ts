@@ -1,3 +1,2 @@
-export * from './decorators';
-
 export * from './auth.module';
+export * from './guards';
