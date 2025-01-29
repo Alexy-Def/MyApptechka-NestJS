@@ -21,14 +21,6 @@ export class UserService {
     return user;
   }
 
-  public async toggleIsBlockedStatus(
-    userId: number,
-    isBlocked: boolean,
-    userRepository: UserRepository,
-  ): Promise<void> {
-    await userRepository.update({ id: userId }, { isBlocked });
-  }
-
   public async getUser(email: string): Promise<UserDbDataByEmail | null> {
     return this.userRepository.findOneBy({ email });
   }

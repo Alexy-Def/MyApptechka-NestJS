@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { UserService } from '@modules/users/services';
 
 @Injectable()
-export class FirstAidKidService {
+export class AidKitService {
   constructor(private readonly userService: UserService) {}
 
-  // public async getMyFirstAidKids(userId: number): Promise<void> {}
+  // public async getMyAidKits(userId: number): Promise<void> {}
 }

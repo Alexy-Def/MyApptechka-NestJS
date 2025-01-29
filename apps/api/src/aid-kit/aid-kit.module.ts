@@ -14,4 +14,4 @@ import * as Services from './services';
   providers: Object.values(Services),
   exports: Object.values(Services),
 })
-export class FirstAidKidModule {}
+export class AidKitModule {}
