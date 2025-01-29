@@ -62,12 +62,12 @@
         "tags": ["auth"]
       }
     },
-    "/api/v1/first-aid-kid": {
+    "/api/v1/aid-kit": {
       "get": {
-        "operationId": "FirstAidKidsController_getMyFirstAidKids",
+        "operationId": "AidKitController_getMyAidKits",
         "parameters": [],
         "responses": { "200": { "description": "" } },
-        "tags": ["first-aid-kid"]
+        "tags": ["aid-kit"]
       }
     }
   },

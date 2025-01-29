@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 
+import { AidKitEntity } from '@modules/aid-kit/entities';
 import { BaseEntity } from '@modules/core/entities';
-import { FirstAidKidEntity } from '@modules/first-aid-kid/entities';
 
 @Entity({ name: 'drug' })
 export class DrugEntity extends BaseEntity {
@@ -29,6 +29,6 @@ export class DrugEntity extends BaseEntity {
   @Column()
   public userId: number;
 
-  @ManyToOne(() => FirstAidKidEntity, (firstAidKid) => firstAidKid.drugs)
-  public firstAidKid?: FirstAidKidEntity;
+  @ManyToOne(() => AidKitEntity, (aidKit) => aidKit.drugs)
+  public aidKit?: AidKitEntity;
 }

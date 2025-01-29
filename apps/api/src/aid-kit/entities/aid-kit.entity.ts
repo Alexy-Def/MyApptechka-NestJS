@@ -1,10 +1,10 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 
+import { DrugEntity } from '@modules/aid-kit/entities';
 import { BaseEntity } from '@modules/core/entities';
-import { DrugEntity } from '@modules/first-aid-kid/entities';
 
-@Entity({ name: 'first_aid_kid' })
-export class FirstAidKidEntity extends BaseEntity {
+@Entity({ name: 'aid_kit' })
+export class AidKitEntity extends BaseEntity {
   @Column()
   public name: string;
 
@@ -20,7 +20,7 @@ export class FirstAidKidEntity extends BaseEntity {
   @Column()
   public imageUrl: string;
 
-  @OneToMany(() => DrugEntity, (drug) => drug.firstAidKid)
+  @OneToMany(() => DrugEntity, (drug) => drug.aidKit)
   public drugs?: DrugEntity[];
 
   //   @Column()
