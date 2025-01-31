@@ -24,4 +24,7 @@ export class SignUpBodyDTO {
 
   @ApiPropertyString()
   public username: string;
+
+  @ApiPropertyString()
+  public familyTitle: string;
 }

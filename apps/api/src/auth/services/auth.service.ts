@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
+import { DataSource } from 'typeorm';
 
 import { ServiceError, UnauthorizedError } from '@modules/core/exceptions';
 import { USER_ROLE } from '@modules/users/constants';
-import { UserService } from '@modules/users/services';
+import { UserService, FamilyService } from '@modules/users/services';
 import { AUTH } from 'config';
 
 import { AUTH_CONSTANTS, NEW_AUTH_ERRORS } from '../constants';
@@ -13,24 +14,38 @@ import { SignUpData, SignInData, Tokens, UserAuthData } from '../types';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService, private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly familyService: FamilyService,
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+    private readonly dataSource: DataSource,
+  ) {}
 
-  public async signUp({ email, password, username }: SignUpData): Promise<void> {
-    const existedUser = await this.userService.getUser(email);
+  public async signUp({ email, password, username, familyTitle }: SignUpData): Promise<void> {
+    await this.dataSource.manager.transaction(async (entityManager) => {
+      const existedUser = await this.userService.getUser(email);
 
-    if (existedUser) {
-      throw new ServiceError(NEW_AUTH_ERRORS.EMAIL_ALREADY_USED);
-    }
+      if (existedUser) {
+        throw new ServiceError(NEW_AUTH_ERRORS.EMAIL_ALREADY_USED);
+      }
 
-    const hashedPassword = await hash(password, AUTH_CONSTANTS.PASSWORD_HASH_SALT_ROUNDS);
+      const hashedPassword = await hash(password, AUTH_CONSTANTS.PASSWORD_HASH_SALT_ROUNDS);
 
-    const user = {
-      email,
-      password: hashedPassword,
-      username,
-      role: USER_ROLE.USER,
-    };
-    await this.userService.createUser(user);
+      const userData = {
+        email,
+        password: hashedPassword,
+        username,
+        role: USER_ROLE.USER,
+      };
+      const createdUser = await this.userService.createUser(userData, entityManager);
+
+      const createdFamily = await this.familyService.createFamily(
+        { title: familyTitle, referralCode: 111 },
+        entityManager,
+      );
+      createdUser.familyId = createdFamily.id;
+      await this.userService.updateUser(createdUser.id, createdUser, entityManager);
+    });
   }
 
   public async signIn({ email, password }: SignInData, response: Response): Promise<void> {

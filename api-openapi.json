@@ -87,9 +87,10 @@
         "properties": {
           "email": { "type": "string", "example": "string" },
           "password": { "type": "string", "example": "string" },
-          "username": { "type": "string", "example": "string" }
+          "username": { "type": "string", "example": "string" },
+          "familyTitle": { "type": "string", "example": "string" }
         },
-        "required": ["email", "password", "username"]
+        "required": ["email", "password", "username", "familyTitle"]
       },
       "SignInBodyDTO": {
         "type": "object",

@@ -6,6 +6,7 @@ export type UserDbDataById = {
   username: string;
   role: USER_ROLE;
   refreshToken: string | null;
+  familyId?: number | null;
 };
 
 export type UserDbDataByEmail = UserDbDataById & {
@@ -13,3 +14,4 @@ export type UserDbDataByEmail = UserDbDataById & {
 };
 
 export type CreateUserData = Omit<UserDbDataByEmail, 'id' | 'refreshToken'>;
+export type UpdateUserData = Partial<CreateUserData>;

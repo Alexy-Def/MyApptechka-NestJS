@@ -9,7 +9,7 @@
     HOST: 'localhost',
     USERNAME: 'docker',
     PASSWORD: 'docker',
-    PORT: 28163,
+    PORT: 5433,
     DB: 'myapptechka',
     RETRY_ATTEMPTS: 15,
     RETRY_DELAY: 1000,

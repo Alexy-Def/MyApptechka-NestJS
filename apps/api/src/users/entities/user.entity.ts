@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '@modules/core/entities';
+import { FamilyEntity } from '@modules/users';
 
 import { USER_ROLE } from '../constants';
 
@@ -23,4 +24,10 @@ export class UserEntity extends BaseEntity {
 
   @Column({ type: 'boolean', default: false })
   public isBlocked: boolean;
+
+  @Column({ nullable: true })
+  public familyId: number | null;
+
+  @ManyToOne(() => FamilyEntity, (family) => family.users)
+  public family?: FamilyEntity;
 }
