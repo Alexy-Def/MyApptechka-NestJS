@@ -1,4 +1,4 @@
-import { ApiPropertyString } from '@ppx-node/api-decorators';
+import { ApiPropertyNumber, ApiPropertyString } from '@ppx-node/api-decorators';
 import { IsEmail, Matches } from 'class-validator';
 
 import { AUTH_CONSTANTS, NEW_AUTH_ERRORS } from '../constants';
@@ -26,5 +26,24 @@ export class SignUpBodyDTO {
   public username: string;
 
   @ApiPropertyString()
+  public phone: string;
+
+  @ApiPropertyString()
   public familyTitle: string;
+
+  @ApiPropertyNumber({ isOptional: true })
+  public verificationCode?: number;
+}
+
+export class SendSmsCodeBodyDTO {
+  @ApiPropertyString()
+  public phone: string;
+}
+
+export class ChangePasswordBodyDTO extends SendSmsCodeBodyDTO {
+  @ApiPropertyString()
+  public newPassword: string;
+
+  @ApiPropertyString()
+  public confirmNewPassword: string;
 }

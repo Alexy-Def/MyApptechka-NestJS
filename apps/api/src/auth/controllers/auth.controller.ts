@@ -5,7 +5,7 @@ import { Response } from 'express';
 import { ResponseInfo } from '@modules/core/api-responses';
 
 import { COOKIE_KEY } from '../constants';
-import { SignUpBodyDTO, SignInBodyDTO } from '../dtos';
+import { SignUpBodyDTO, SignInBodyDTO, SendSmsCodeBodyDTO, ChangePasswordBodyDTO } from '../dtos';
 import { AuthService } from '../services';
 
 @Controller('auth')
@@ -24,6 +24,24 @@ export class AuthController {
   @ResponseInfo()
   public async signIn(@Body() body: SignInBodyDTO, @Res({ passthrough: true }) response: Response): Promise<void> {
     await this.authService.signIn(body, response);
+  }
+
+  @Post('send-pre-register-sms-code')
+  @ResponseInfo()
+  public async sendPreRegisterSmsCode(@Body() body: SendSmsCodeBodyDTO): Promise<void> {
+    await this.authService.sendPreRegisterSmsCode(body);
+  }
+
+  @Post('send-forgot-password-sms-code')
+  @ResponseInfo()
+  public async sendForgotPasswordSmsCode(@Body() body: SendSmsCodeBodyDTO): Promise<void> {
+    await this.authService.sendForgotPasswordSmsCode(body);
+  }
+
+  @Post('change-password')
+  @ResponseInfo()
+  public async changePassword(@Body() body: ChangePasswordBodyDTO): Promise<void> {
+    await this.authService.changePassword(body);
   }
 
   @Post('sign-out')

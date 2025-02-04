@@ -1,17 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 
-import { EntityNotFoundError } from '@modules/core/exceptions';
+import { hashPassword, compareHashedPassword } from '@libs/helpers';
+import { EntityNotFoundError, ServiceError } from '@modules/core/exceptions';
+import { AUTH } from 'config';
 
 import { USER_ERRORS } from '../constants/errors';
 import { UserRepository } from '../repositories';
-import { UserDbDataById, UserDbDataByEmail, CreateUserData, UpdateUserData } from '../types';
+import {
+  UserDbData,
+  UserByPhoneDbData,
+  UserByEmailDbData,
+  CreateUserData,
+  UpdateUserData,
+  ChangePasswordData,
+} from '../types';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(private readonly userRepository: UserRepository, private readonly dataSource: DataSource) {}
 
-  public async getUserByIdOrFail(id: number, entityManager?: EntityManager): Promise<UserDbDataById> {
+  public async getUserByIdOrFail(id: number, entityManager?: EntityManager): Promise<UserDbData> {
     const userRepository = entityManager ? entityManager.withRepository(this.userRepository) : this.userRepository;
     const user = await userRepository.findOneBy({ id });
 
@@ -22,17 +31,48 @@ export class UserService {
     return user;
   }
 
-  public async getUser(email: string): Promise<UserDbDataByEmail | null> {
+  public async getUserByPhone(phone: string, entityManager?: EntityManager): Promise<UserByPhoneDbData | null> {
+    const userRepository = entityManager ? entityManager.withRepository(this.userRepository) : this.userRepository;
+    const user = await userRepository.findOneBy({ phone });
+
+    return user;
+  }
+
+  public async changePassword(body: ChangePasswordData, checkOldPassword: boolean): Promise<void> {
+    const { phone, newPassword, confirmNewPassword, oldPassword } = body;
+
+    if (newPassword !== confirmNewPassword) {
+      throw new ServiceError(USER_ERRORS.INVALID_CONFIRM_PASSWORD);
+    }
+
+    await this.dataSource.manager.transaction(async (entityManager) => {
+      const userRepository = entityManager.withRepository(this.userRepository);
+      const user = await this.getUserByPhone(phone);
+
+      if (checkOldPassword && oldPassword) {
+        const matchedOldPassword = await compareHashedPassword(oldPassword, user?.password!);
+
+        if (!matchedOldPassword) {
+          throw new ServiceError(USER_ERRORS.INVALID_OLD_PASSWORD);
+        }
+      }
+
+      const hashedPassword = await hashPassword(newPassword, AUTH.PASSWORD_HASH_SALT_ROUNDS);
+      await userRepository.update({ id: user?.id }, { password: hashedPassword });
+    });
+  }
+
+  public async getUser(email: string): Promise<UserByEmailDbData | null> {
     return this.userRepository.findOneBy({ email });
   }
 
-  public async createUser(user: CreateUserData, entityManager?: EntityManager): Promise<UserDbDataById> {
+  public async createUser(user: CreateUserData, entityManager?: EntityManager): Promise<UserDbData> {
     const userRepository = entityManager ? entityManager.withRepository(this.userRepository) : this.userRepository;
 
     return userRepository.save(user);
   }
 
-  public async updateUser(id: number, data: UpdateUserData, entityManager?: EntityManager): Promise<UserDbDataById> {
+  public async updateUser(id: number, data: UpdateUserData, entityManager?: EntityManager): Promise<UserDbData> {
     const userRepository = entityManager ? entityManager.withRepository(this.userRepository) : this.userRepository;
     const user = await this.getUserByIdOrFail(id, entityManager);
 

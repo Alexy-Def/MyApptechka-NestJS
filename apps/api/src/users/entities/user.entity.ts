@@ -16,6 +16,9 @@ export class UserEntity extends BaseEntity {
   @Column()
   public username: string;
 
+  @Column()
+  public phone: string;
+
   @Column({ type: 'enum', enum: USER_ROLE })
   public role: USER_ROLE;
 

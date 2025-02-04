@@ -36,6 +36,7 @@
       __name: 'AUTH_IS_TFA_ENABLED',
       __format: 'boolean',
     },
+    PASSWORD_HASH_SALT_ROUNDS: 'AUTH_PASSWORD_HASH_SALT_ROUNDS',
   },
   COOKIE: {
     MAX_AGE: {

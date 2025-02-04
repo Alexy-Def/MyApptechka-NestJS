@@ -22,7 +22,7 @@
     },
   ],
   API: {
-    PORT: 3001,
+    PORT: 3002,
     ENABLE_SWAGGER: true,
   },
   APM: {
@@ -39,6 +39,7 @@
     ACCESS_TOKEN_EXPIRES_IN: '10m',
     REFRESH_TOKEN_EXPIRES_IN: '12h',
     IS_TFA_ENABLED: true,
+    PASSWORD_HASH_SALT_ROUNDS: 11,
   },
   COOKIE: {
     MAX_AGE: 604800000,
