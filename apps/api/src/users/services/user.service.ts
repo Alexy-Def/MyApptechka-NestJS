@@ -7,14 +7,7 @@ import { AUTH } from 'config';
 
 import { USER_ERRORS } from '../constants/errors';
 import { UserRepository } from '../repositories';
-import {
-  UserDbData,
-  UserByPhoneDbData,
-  UserByEmailDbData,
-  CreateUserData,
-  UpdateUserData,
-  ChangePasswordData,
-} from '../types';
+import { UserDbData, UserByPhoneDbData, CreateUserData, UpdateUserData, ChangePasswordData } from '../types';
 
 @Injectable()
 export class UserService {
@@ -60,10 +53,6 @@ export class UserService {
       const hashedPassword = await hashPassword(newPassword, AUTH.PASSWORD_HASH_SALT_ROUNDS);
       await userRepository.update({ id: user?.id }, { password: hashedPassword });
     });
-  }
-
-  public async getUser(email: string): Promise<UserByEmailDbData | null> {
-    return this.userRepository.findOneBy({ email });
   }
 
   public async createUser(user: CreateUserData, entityManager?: EntityManager): Promise<UserDbData> {

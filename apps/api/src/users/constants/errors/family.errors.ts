@@ -1,0 +1,3 @@
+export enum FAMILY_ERRORS {
+  FAMILY_NOT_FOUND = 'FAMILY_NOT_FOUND',
+}

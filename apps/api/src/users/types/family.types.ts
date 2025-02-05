@@ -1,4 +1,4 @@
-// import { USER_ROLE } from '../constants';
+import { FamilyEntity } from '../entities';
 
 export type FamilyDbData = {
   id: number;
@@ -9,19 +9,7 @@ export type FamilyDbData = {
 
 export type CreateFamilyData = {
   title: string;
-  referralCode: number;
+  referralCode?: number;
 };
 
-// export type UserDbDataById = {
-//   id: number;
-//   email: string;
-//   username: string;
-//   role: USER_ROLE;
-//   refreshToken: string | null;
-// };
-
-// export type UserDbDataByEmail = UserDbDataById & {
-//   password: string;
-// };
-
-// export type CreateUserData = Omit<UserDbDataByEmail, 'id' | 'refreshToken'>;
+export type UpdateFamilyData = Partial<Pick<FamilyEntity, 'title' | 'headOfId'>>;

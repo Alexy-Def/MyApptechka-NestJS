@@ -11,7 +11,15 @@ import { AUTH } from 'config';
 
 import { NEW_AUTH_ERRORS } from '../constants';
 import { setCookie, clearCookie } from '../helpers';
-import { SignUpData, SignInData, Tokens, UserAuthData, SendSmsCodeData, ChangePasswordData } from '../types';
+import {
+  SignUpData,
+  SignInData,
+  Tokens,
+  UserAuthData,
+  SendSmsCodeData,
+  ChangePasswordData,
+  VerifyPhoneData,
+} from '../types';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +31,7 @@ export class AuthService {
   ) {}
 
   public async signUp(body: SignUpData): Promise<void> {
-    const { email, password, username, phone, familyTitle } = body;
+    const { password, username, phone, familyTitle, referralCode } = body;
 
     // check verification code. if it doesn't match -> error
 
@@ -35,30 +43,29 @@ export class AuthService {
       }
 
       const hashedPassword = await hashPassword(password, AUTH.PASSWORD_HASH_SALT_ROUNDS);
+      const family = await this.familyService.getOrCreateFamily({ title: familyTitle, referralCode }, entityManager);
 
       const userData = {
-        email,
         password: hashedPassword,
         username,
         phone,
         role: USER_ROLE.USER,
+        familyId: family.id,
       };
       const createdUser = await this.userService.createUser(userData, entityManager);
 
-      const createdFamily = await this.familyService.createFamily(
-        { title: familyTitle, referralCode: 111 },
-        entityManager,
-      );
-      createdUser.familyId = createdFamily.id;
-      await this.userService.updateUser(createdUser.id, createdUser, entityManager);
+      if (!referralCode) {
+        family.headOfId = createdUser.id;
+        await this.familyService.updateFamily(family.id, family, entityManager);
+      }
     });
   }
 
-  public async signIn({ email, password }: SignInData, response: Response): Promise<void> {
-    const user = await this.userService.getUser(email);
+  public async signIn({ phone, password }: SignInData, response: Response): Promise<void> {
+    const user = await this.userService.getUserByPhone(phone);
 
     if (!user) {
-      throw new UnauthorizedError(NEW_AUTH_ERRORS.INVALID_EMAIL);
+      throw new UnauthorizedError(NEW_AUTH_ERRORS.USER_NOT_FOUND);
     }
 
     const isPasswordCorrect = await compareHashedPassword(password, user.password);
@@ -104,6 +111,11 @@ export class AuthService {
     // check verification code. if it doesn't match -> error
 
     await this.userService.changePassword(body, false);
+  }
+
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+  public async verifyPhone(body: VerifyPhoneData): Promise<void> {
+    // check verification code. if it doesn't match -> error
   }
 
   public signOut(response: Response): void {

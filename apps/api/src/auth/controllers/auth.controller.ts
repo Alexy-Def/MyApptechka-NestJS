@@ -5,7 +5,7 @@ import { Response } from 'express';
 import { ResponseInfo } from '@modules/core/api-responses';
 
 import { COOKIE_KEY } from '../constants';
-import { SignUpBodyDTO, SignInBodyDTO, SendSmsCodeBodyDTO, ChangePasswordBodyDTO } from '../dtos';
+import { SignUpBodyDTO, SignInBodyDTO, SendSmsCodeBodyDTO, ChangePasswordBodyDTO, VerifyPhoneBodyDTO } from '../dtos';
 import { AuthService } from '../services';
 
 @Controller('auth')
@@ -42,6 +42,12 @@ export class AuthController {
   @ResponseInfo()
   public async changePassword(@Body() body: ChangePasswordBodyDTO): Promise<void> {
     await this.authService.changePassword(body);
+  }
+
+  @Post('verify-phone')
+  @ResponseInfo()
+  public async verifyPhone(@Body() body: VerifyPhoneBodyDTO): Promise<void> {
+    await this.authService.verifyPhone(body);
   }
 
   @Post('sign-out')

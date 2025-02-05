@@ -7,9 +7,6 @@ import { USER_ROLE } from '../constants';
 
 @Entity({ name: 'user' })
 export class UserEntity extends BaseEntity {
-  @Column({ unique: true })
-  public email: string;
-
   @Column()
   public password: string;
 

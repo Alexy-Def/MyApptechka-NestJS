@@ -1,6 +1,6 @@
 import { USER_ROLE } from '@modules/users/constants';
 
-import { SignUpBodyDTO, SignInBodyDTO, SendSmsCodeBodyDTO } from '../dtos';
+import { SignUpBodyDTO, SignInBodyDTO, SendSmsCodeBodyDTO, VerifyPhoneBodyDTO, ChangePasswordBodyDTO } from '../dtos';
 
 export type SignUpData = SignUpBodyDTO;
 export type SignInData = SignInBodyDTO;
@@ -16,7 +16,12 @@ export type UserAuthData = {
 };
 
 export type SendSmsCodeData = SendSmsCodeBodyDTO;
-export type ChangePasswordData = SendSmsCodeData & {
+
+export type VerifyPhoneData = VerifyPhoneBodyDTO & {
+  verificationCode: number;
+};
+
+export type ChangePasswordData = ChangePasswordBodyDTO & {
   newPassword: string;
   confirmNewPassword: string;
 };
