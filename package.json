@@ -158,7 +158,8 @@
       "^@libs/api-client-types(|/.*)$": "<rootDir>/libs/api-client-types/src/$1",
       "^@libs/s3(|/.*)$": "<rootDir>/libs/s3/src/$1",
       "^@libs/nestjs-logger(|/.*)$": "<rootDir>/libs/nestjs-logger/src/$1",
-      "^@libs/dtos(|/.*)$": "<rootDir>/libs/dtos/src/$1"
+      "^@libs/dtos(|/.*)$": "<rootDir>/libs/dtos/src/$1",
+      "^@libs/helpers(|/.*)$": "<rootDir>/libs/helpers/src/$1"
     }
   },
   "lint-staged": {

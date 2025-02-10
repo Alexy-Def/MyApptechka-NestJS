@@ -43,3 +43,4 @@ docker-compose-work.yml
 add_enviroment
 
 libs/api-client-types/src
+api-openapi.json

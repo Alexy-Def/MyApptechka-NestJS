@@ -13,9 +13,5 @@ export class GetUserByIdResponseDTO {
 
   @Expose()
   @ApiPropertyString()
-  public email: string;
-
-  @Expose()
-  @ApiPropertyString()
   public username: string;
 }

@@ -1,15 +1,22 @@
 import { USER_ROLE } from '../constants';
 
-export type UserDbDataById = {
+export type UserDbData = {
   id: number;
-  email: string;
   username: string;
+  password: string;
   role: USER_ROLE;
   refreshToken: string | null;
+  familyId?: number | null;
 };
 
-export type UserDbDataByEmail = UserDbDataById & {
-  password: string;
-};
+export type UserByPhoneDbData = UserDbData;
 
-export type CreateUserData = Omit<UserDbDataByEmail, 'id' | 'refreshToken'>;
+export type CreateUserData = Omit<UserDbData, 'id' | 'refreshToken'>;
+export type UpdateUserData = Partial<CreateUserData>;
+
+export type ChangePasswordData = {
+  phone: string;
+  newPassword: string;
+  confirmNewPassword: string;
+  oldPassword?: string;
+};

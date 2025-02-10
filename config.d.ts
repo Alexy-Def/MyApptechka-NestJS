@@ -1,5 +1,6 @@
 declare module 'config' {
   import { ENVIRONMENT } from '@modules/core/constants';
+
   export const CORS: boolean;
   export const ENVIRONMENT: ENVIRONMENT;
 
@@ -44,6 +45,7 @@ declare module 'config' {
     readonly ACCESS_TOKEN_EXPIRES_IN: string;
     readonly REFRESH_TOKEN_EXPIRES_IN: string;
     readonly IS_TFA_ENABLED: boolean;
+    readonly PASSWORD_HASH_SALT_ROUNDS: number;
   };
 
   export const COOKIE: {

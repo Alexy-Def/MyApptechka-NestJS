@@ -1,21 +1,17 @@
-import { ApiPropertyString } from '@ppx-node/api-decorators';
-import { IsEmail, Matches } from 'class-validator';
+import { ApiPropertyNumber, ApiPropertyString } from '@ppx-node/api-decorators';
+import { Matches } from 'class-validator';
 
 import { AUTH_CONSTANTS, NEW_AUTH_ERRORS } from '../constants';
 
 export class SignInBodyDTO {
   @ApiPropertyString()
-  public email: string;
+  public phone: string;
 
   @ApiPropertyString()
   public password: string;
 }
 
 export class SignUpBodyDTO {
-  @IsEmail()
-  @ApiPropertyString()
-  public email: string;
-
   @ApiPropertyString()
   @Matches(AUTH_CONSTANTS.PASSWORD_REGEX, {
     message: NEW_AUTH_ERRORS.INVALID_PASSWORD_PATTERN,
@@ -24,4 +20,31 @@ export class SignUpBodyDTO {
 
   @ApiPropertyString()
   public username: string;
+
+  @ApiPropertyString()
+  public phone: string;
+
+  @ApiPropertyString()
+  public familyTitle: string;
+
+  @ApiPropertyNumber({ isOptional: true })
+  public referralCode?: number;
+}
+
+export class SendSmsCodeBodyDTO {
+  @ApiPropertyString()
+  public phone: string;
+}
+
+export class VerifyPhoneBodyDTO extends SendSmsCodeBodyDTO {
+  @ApiPropertyNumber()
+  public verificationCode: number;
+}
+
+export class ChangePasswordBodyDTO extends VerifyPhoneBodyDTO {
+  @ApiPropertyString()
+  public newPassword: string;
+
+  @ApiPropertyString()
+  public confirmNewPassword: string;
 }

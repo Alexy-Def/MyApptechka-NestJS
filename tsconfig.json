@@ -30,7 +30,9 @@
       "@libs/nestjs-logger": ["libs/nestjs-logger/src"],
       "@libs/nestjs-logger/*": ["libs/nestjs-logger/src/*"],
       "@libs/dtos": ["libs/dtos/src"],
-      "@libs/dtos/*": ["libs/dtos/src/*"]
+      "@libs/dtos/*": ["libs/dtos/src/*"],
+      "@libs/helpers": ["libs/helpers/src"],
+      "@libs/helpers/*": ["libs/helpers/src/*"]
     }
   },
   "exclude": ["node_modules", "dist"],

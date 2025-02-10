@@ -73,6 +73,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/dtos/tsconfig.lib.json"
       }
+    },
+    "helpers": {
+      "type": "library",
+      "root": "libs/helpers",
+      "entryFile": "index",
+      "sourceRoot": "libs/helpers/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/helpers/tsconfig.lib.json"
+      }
     }
   },
   "compilerOptions": {

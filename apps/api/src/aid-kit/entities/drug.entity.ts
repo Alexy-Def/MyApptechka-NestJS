@@ -27,7 +27,7 @@ export class DrugEntity extends BaseEntity {
   public expirationDate: Date;
 
   @Column()
-  public userId: number;
+  public aidKitId: number;
 
   @ManyToOne(() => AidKitEntity, (aidKit) => aidKit.drugs)
   public aidKit?: AidKitEntity;
