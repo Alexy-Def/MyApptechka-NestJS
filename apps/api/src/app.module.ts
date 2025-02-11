@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ApmModule } from '@libs/apm';
@@ -36,6 +37,7 @@ import ormconfig from 'ormconfig';
     HealthCheckModule,
     AuthModule,
     AidKitModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [],
   providers: [

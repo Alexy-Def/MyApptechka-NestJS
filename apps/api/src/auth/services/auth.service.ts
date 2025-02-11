@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { DataSource } from 'typeorm';
 
@@ -9,13 +8,14 @@ import { USER_ROLE } from '@modules/users/constants';
 import { UserService, FamilyService } from '@modules/users/services';
 import { AUTH } from 'config';
 
-import { NEW_AUTH_ERRORS } from '../constants';
+import { AUTH_HEADERS, NEW_AUTH_ERRORS } from '../constants';
 import { setCookie, clearCookie } from '../helpers';
+import { AuthTokenService } from '../services';
 import {
   SignUpData,
   SignInData,
   Tokens,
-  UserAuthData,
+  RefreshToken,
   SendSmsCodeData,
   ChangePasswordData,
   VerifyPhoneData,
@@ -24,9 +24,9 @@ import {
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly authTokenService: AuthTokenService,
     private readonly familyService: FamilyService,
     private readonly userService: UserService,
-    private readonly jwtService: JwtService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -61,7 +61,11 @@ export class AuthService {
     });
   }
 
-  public async signIn({ phone, password }: SignInData, response: Response): Promise<void> {
+  public async signIn(
+    headers: Record<string, string>,
+    { phone, password }: SignInData,
+    response: Response,
+  ): Promise<Tokens | void> {
     const user = await this.userService.getUserByPhone(phone);
 
     if (!user) {
@@ -74,9 +78,17 @@ export class AuthService {
       throw new UnauthorizedError(NEW_AUTH_ERRORS.INVALID_PASSWORD);
     }
 
-    const tokens = this.createTokens({ id: user.id, role: user.role });
-    await this.saveRefreshToken(user.id, tokens.refreshToken);
-    setCookie(tokens, response);
+    const tokens = this.authTokenService.createTokens({ id: user.id, role: user.role });
+    const { device, isMobileDevice } = this.authTokenService.getDevice(headers);
+    await this.authTokenService.saveRefreshToken(user.id, tokens.refreshToken, device);
+
+    if (isMobileDevice) {
+      response.setHeader(AUTH_HEADERS.AUTHORIZATION, `Bearer ${tokens.accessToken}`);
+
+      return tokens;
+    } else {
+      setCookie(tokens, response);
+    }
   }
 
   public async sendPreRegisterSmsCode(body: SendSmsCodeData): Promise<void> {
@@ -118,71 +130,16 @@ export class AuthService {
     // check verification code. if it doesn't match -> error
   }
 
-  public signOut(response: Response): void {
+  public async refreshTokens(
+    headers: Record<string, string>,
+    body: RefreshToken,
+    response: Response,
+  ): Promise<string | void> {
+    await this.authTokenService.refreshTokens(headers, body, response);
+  }
+
+  public async signOut(body: RefreshToken, response: Response): Promise<void> {
+    await this.authTokenService.deactivateRefreshToken(body);
     clearCookie(response);
-  }
-
-  public createTokens(user: UserAuthData): Tokens {
-    const accessToken = this.createAccessToken(user);
-    const refreshToken = this.createRefreshToken(user);
-
-    return { accessToken, refreshToken };
-  }
-
-  public createAccessToken(user: UserAuthData): string {
-    return this.jwtService.sign(
-      {
-        id: user.id,
-        role: user.role,
-      },
-      {
-        expiresIn: AUTH.ACCESS_TOKEN_EXPIRES_IN,
-        secret: AUTH.ACCESS_JWT_SECRET,
-      },
-    );
-  }
-
-  public createRefreshToken(user: UserAuthData): string {
-    const refreshToken = this.jwtService.sign(
-      {
-        id: user.id,
-        role: user.role,
-      },
-      {
-        expiresIn: AUTH.REFRESH_TOKEN_EXPIRES_IN,
-        secret: AUTH.REFRESH_JWT_SECRET,
-      },
-    );
-
-    return refreshToken;
-  }
-
-  public decodedRefreshToken(refreshToken: string): UserAuthData {
-    try {
-      return this.jwtService.verify(refreshToken, { secret: AUTH.REFRESH_JWT_SECRET });
-    } catch (error) {
-      throw new ServiceError(NEW_AUTH_ERRORS.INVALID_REFRESH_TOKEN);
-    }
-  }
-
-  public async refreshTokens(refreshToken: string, response: Response): Promise<void> {
-    const refreshTokenPayload = this.decodedRefreshToken(refreshToken);
-    const user = await this.userService.getUserByIdOrFail(refreshTokenPayload.id);
-
-    if (refreshToken !== user.refreshToken) {
-      throw new ServiceError(NEW_AUTH_ERRORS.INVALID_REFRESH_TOKEN);
-    }
-
-    const accessToken = this.createAccessToken(user);
-
-    return setCookie({ accessToken }, response);
-  }
-
-  public async saveRefreshToken(userId: number, refreshToken: string): Promise<void> {
-    await this.userService.updateRefreshToken(userId, refreshToken);
-  }
-
-  public async deleteRefreshToken(userId: number): Promise<void> {
-    await this.userService.updateRefreshToken(userId, null);
   }
 }

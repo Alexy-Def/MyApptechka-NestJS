@@ -1,15 +1,18 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 
+import { TypeOrmExtModule } from '@libs/typeorm-ext';
 import { UsersModule } from '@modules/users';
 import { AUTH } from 'config';
 
 import * as Controllers from './controllers';
 import * as Guards from './guards';
+import * as Repositories from './repositories';
 import * as Services from './services';
 
 @Module({
   imports: [
+    TypeOrmExtModule.forCustomRepository(Object.values(Repositories)),
     UsersModule,
     JwtModule.register({
       secret: AUTH.ACCESS_JWT_SECRET,

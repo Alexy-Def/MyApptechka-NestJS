@@ -1,4 +1,5 @@
 import { ApiPropertyNumber, ApiPropertyString } from '@ppx-node/api-decorators';
+import { Expose } from 'class-transformer';
 import { Matches } from 'class-validator';
 
 import { AUTH_CONSTANTS, NEW_AUTH_ERRORS } from '../constants';
@@ -47,4 +48,21 @@ export class ChangePasswordBodyDTO extends VerifyPhoneBodyDTO {
 
   @ApiPropertyString()
   public confirmNewPassword: string;
+}
+
+export class RefreshTokenBodyDTO {
+  @ApiPropertyString({ isOptional: true })
+  public refreshToken?: string;
+}
+
+export class AccessTokenResponseDTO {
+  @Expose()
+  @ApiPropertyString()
+  public accessToken: string;
+}
+
+export class TokensResponseDTO extends AccessTokenResponseDTO {
+  @Expose()
+  @ApiPropertyString()
+  public refreshToken: string;
 }

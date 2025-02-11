@@ -44,6 +44,8 @@ declare module 'config' {
     readonly REFRESH_JWT_SECRET: string;
     readonly ACCESS_TOKEN_EXPIRES_IN: string;
     readonly REFRESH_TOKEN_EXPIRES_IN: string;
+    readonly REFRESH_TOKEN_EXPIRES_UNIT: string;
+    readonly REFRESH_TOKEN_EXPIRES_VALUE: number;
     readonly IS_TFA_ENABLED: boolean;
     readonly PASSWORD_HASH_SALT_ROUNDS: number;
   };

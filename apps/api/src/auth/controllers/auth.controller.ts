@@ -1,11 +1,20 @@
-import { Post, Controller, Body, HttpCode, HttpStatus, Res } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Post, Controller, Body, HttpCode, HttpStatus, Res, Headers } from '@nestjs/common';
+import { ApiHeader, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
 import { ResponseInfo } from '@modules/core/api-responses';
 
-import { COOKIE_KEY } from '../constants';
-import { SignUpBodyDTO, SignInBodyDTO, SendSmsCodeBodyDTO, ChangePasswordBodyDTO, VerifyPhoneBodyDTO } from '../dtos';
+import { AUTH_HEADERS } from '../constants';
+import {
+  SignUpBodyDTO,
+  SignInBodyDTO,
+  SendSmsCodeBodyDTO,
+  ChangePasswordBodyDTO,
+  VerifyPhoneBodyDTO,
+  TokensResponseDTO,
+  RefreshTokenBodyDTO,
+  AccessTokenResponseDTO,
+} from '../dtos';
 import { AuthService } from '../services';
 
 @Controller('auth')
@@ -21,9 +30,18 @@ export class AuthController {
 
   @Post('sign-in')
   @HttpCode(HttpStatus.OK)
+  @ApiHeader({
+    name: AUTH_HEADERS.DEVICE_NAME,
+    description: AUTH_HEADERS.DEVICE_NAME_DESCRIPTION,
+    required: false,
+  })
   @ResponseInfo()
-  public async signIn(@Body() body: SignInBodyDTO, @Res({ passthrough: true }) response: Response): Promise<void> {
-    await this.authService.signIn(body, response);
+  public async signIn(
+    @Headers() headers: Record<string, string>,
+    @Body() body: SignInBodyDTO,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<TokensResponseDTO | void> {
+    return this.authService.signIn(headers, body, response);
   }
 
   @Post('send-pre-register-sms-code')
@@ -52,13 +70,20 @@ export class AuthController {
 
   @Post('sign-out')
   @ResponseInfo()
-  public signOut(@Res({ passthrough: true }) response: Response): void {
-    this.authService.signOut(response);
+  public async signOut(
+    @Body() body: RefreshTokenBodyDTO,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
+    await this.authService.signOut(body, response);
   }
 
   @Post('refresh-tokens')
   @ResponseInfo()
-  public async refreshTokens(@Res({ passthrough: true }) response: Response): Promise<void> {
-    await this.authService.refreshTokens(response.req.cookies[COOKIE_KEY.REFRESH_TOKEN], response);
+  public async refreshTokens(
+    @Headers() headers: Record<string, string>,
+    @Body() body: RefreshTokenBodyDTO,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<AccessTokenResponseDTO | void> {
+    await this.authService.refreshTokens(headers, body, response);
   }
 }

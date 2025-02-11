@@ -37,7 +37,15 @@
     "/api/v1/auth/sign-in": {
       "post": {
         "operationId": "AuthController_signIn",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "device-name",
+            "in": "header",
+            "description": "If a mobile device -> send device name and OS",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SignInBodyDTO" } } }
@@ -98,6 +106,10 @@
       "post": {
         "operationId": "AuthController_signOut",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RefreshTokenBodyDTO" } } }
+        },
         "responses": { "200": { "description": "" } },
         "tags": ["auth"]
       }
@@ -106,6 +118,10 @@
       "post": {
         "operationId": "AuthController_refreshTokens",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/RefreshTokenBodyDTO" } } }
+        },
         "responses": { "200": { "description": "" } },
         "tags": ["auth"]
       }
@@ -171,6 +187,10 @@
           "verificationCode": { "type": "number", "example": 1 }
         },
         "required": ["phone", "verificationCode"]
+      },
+      "RefreshTokenBodyDTO": {
+        "type": "object",
+        "properties": { "refreshToken": { "type": "string", "example": "string" } }
       }
     }
   }
