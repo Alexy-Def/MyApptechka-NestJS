@@ -70,10 +70,6 @@ export class UserService {
     return userRepository.save(user);
   }
 
-  public async updateRefreshToken(userId: number, refreshToken: string | null): Promise<void> {
-    await this.userRepository.update({ id: userId }, { refreshToken });
-  }
-
   public async unlockCustomerAccess(id: number): Promise<void> {
     await this.userRepository.update({ id }, { isBlocked: false });
   }

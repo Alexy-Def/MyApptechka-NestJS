@@ -149,13 +149,14 @@
       "SignUpBodyDTO": {
         "type": "object",
         "properties": {
+          "phone": { "type": "string", "example": "string" },
+          "verificationCode": { "type": "number", "example": 1 },
           "password": { "type": "string", "example": "string" },
           "username": { "type": "string", "example": "string" },
-          "phone": { "type": "string", "example": "string" },
           "familyTitle": { "type": "string", "example": "string" },
           "referralCode": { "type": "number", "example": 1 }
         },
-        "required": ["password", "username", "phone", "familyTitle"]
+        "required": ["phone", "verificationCode", "password", "username", "familyTitle"]
       },
       "SignInBodyDTO": {
         "type": "object",

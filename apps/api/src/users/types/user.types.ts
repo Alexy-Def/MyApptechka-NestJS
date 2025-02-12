@@ -5,13 +5,12 @@ export type UserDbData = {
   username: string;
   password: string;
   role: USER_ROLE;
-  refreshToken: string | null;
   familyId?: number | null;
 };
 
 export type UserByPhoneDbData = UserDbData;
 
-export type CreateUserData = Omit<UserDbData, 'id' | 'refreshToken'>;
+export type CreateUserData = Omit<UserDbData, 'id'>;
 export type UpdateUserData = Partial<CreateUserData>;
 
 export type ChangePasswordData = {

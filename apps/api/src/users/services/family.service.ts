@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 
+import { generateRandomSixDigits } from '@libs/helpers';
 import { EntityNotFoundError } from '@modules/core/exceptions';
 
 import { FAMILY_ERRORS } from '../constants/errors';
-import { generateRandomSixDigits } from '../helpers';
 import { FamilyRepository } from '../repositories';
 import { FamilyDbData, CreateFamilyData, UpdateFamilyData } from '../types';
 

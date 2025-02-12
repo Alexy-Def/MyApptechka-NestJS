@@ -19,9 +19,6 @@ export class UserEntity extends BaseEntity {
   @Column({ type: 'enum', enum: USER_ROLE })
   public role: USER_ROLE;
 
-  @Column({ type: 'varchar', nullable: true, default: null })
-  public refreshToken: string | null;
-
   @Column({ type: 'boolean', default: false })
   public isBlocked: boolean;
 

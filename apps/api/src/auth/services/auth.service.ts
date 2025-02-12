@@ -6,9 +6,10 @@ import { hashPassword, compareHashedPassword } from '@libs/helpers';
 import { ServiceError, UnauthorizedError, EntityNotFoundError } from '@modules/core/exceptions';
 import { USER_ROLE } from '@modules/users/constants';
 import { UserService, FamilyService } from '@modules/users/services';
+import { VerificationService } from '@modules/verification';
 import { AUTH } from 'config';
 
-import { AUTH_HEADERS, NEW_AUTH_ERRORS } from '../constants';
+import { NEW_AUTH_ERRORS, SMS_TEMPLATE } from '../constants';
 import { setCookie, clearCookie } from '../helpers';
 import { AuthTokenService } from '../services';
 import {
@@ -27,13 +28,14 @@ export class AuthService {
     private readonly authTokenService: AuthTokenService,
     private readonly familyService: FamilyService,
     private readonly userService: UserService,
+    private readonly verificationService: VerificationService,
     private readonly dataSource: DataSource,
   ) {}
 
   public async signUp(body: SignUpData): Promise<void> {
-    const { password, username, phone, familyTitle, referralCode } = body;
+    const { password, username, phone, verificationCode, familyTitle, referralCode } = body;
 
-    // check verification code. if it doesn't match -> error
+    await this.verifyPhone({ phone, verificationCode });
 
     await this.dataSource.manager.transaction(async (entityManager) => {
       const existedUser = await this.userService.getUserByPhone(phone, entityManager);
@@ -83,8 +85,6 @@ export class AuthService {
     await this.authTokenService.saveRefreshToken(user.id, tokens.refreshToken, device);
 
     if (isMobileDevice) {
-      response.setHeader(AUTH_HEADERS.AUTHORIZATION, `Bearer ${tokens.accessToken}`);
-
       return tokens;
     } else {
       setCookie(tokens, response);
@@ -100,9 +100,7 @@ export class AuthService {
       throw new ServiceError(NEW_AUTH_ERRORS.PHONE_NUMBER_ALREADY_USED);
     }
 
-    // generate code
-
-    // send code
+    await this.verificationService.sendVerificationCode(phone, SMS_TEMPLATE.PRE_REGISTRATION);
   }
 
   public async sendForgotPasswordSmsCode(body: SendSmsCodeData): Promise<void> {
@@ -114,20 +112,16 @@ export class AuthService {
       throw new EntityNotFoundError(NEW_AUTH_ERRORS.USER_NOT_FOUND);
     }
 
-    // generate code
-
-    // send code
+    await this.verificationService.sendVerificationCode(phone, SMS_TEMPLATE.FORGOT_PASSWORD);
   }
 
   public async changePassword(body: ChangePasswordData): Promise<void> {
-    // check verification code. if it doesn't match -> error
-
+    await this.verifyPhone(body);
     await this.userService.changePassword(body, false);
   }
 
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   public async verifyPhone(body: VerifyPhoneData): Promise<void> {
-    // check verification code. if it doesn't match -> error
+    await this.verificationService.verifyCode(body.phone, body.verificationCode);
   }
 
   public async refreshTokens(
