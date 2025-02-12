@@ -72,8 +72,10 @@
     "cors": "^2.8.5",
     "elastic-apm-node": "^4.7.3",
     "express": "^4.19.2",
+    "ioredis": "^5.5.0",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
+    "node-rocketsms-api": "^1.1.1",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.12.0",
@@ -162,7 +164,8 @@
       "^@libs/s3(|/.*)$": "<rootDir>/libs/s3/src/$1",
       "^@libs/nestjs-logger(|/.*)$": "<rootDir>/libs/nestjs-logger/src/$1",
       "^@libs/dtos(|/.*)$": "<rootDir>/libs/dtos/src/$1",
-      "^@libs/helpers(|/.*)$": "<rootDir>/libs/helpers/src/$1"
+      "^@libs/helpers(|/.*)$": "<rootDir>/libs/helpers/src/$1",
+      "^@libs/sms(|/.*)$": "<rootDir>/libs/sms/src/$1"
     }
   },
   "lint-staged": {

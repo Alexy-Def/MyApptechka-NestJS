@@ -87,8 +87,6 @@ export class AuthTokenService {
     const accessToken = this.createAccessToken(user);
 
     if (isMobileDevice) {
-      response.setHeader('Authorization', `Bearer ${accessToken}`);
-
       return accessToken;
     } else {
       setCookie({ accessToken }, response);

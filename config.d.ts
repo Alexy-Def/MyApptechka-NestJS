@@ -77,4 +77,14 @@ declare module 'config' {
     readonly PRIVATE_BUCKET: string;
     readonly PUBLIC_BUCKET: string;
   };
+
+  export const SMS: {
+    readonly USERNAME: string;
+    readonly PASSWORD: string;
+  };
+
+  export const REDIS: {
+    readonly HOST: string;
+    readonly PORT: number;
+  };
 }

@@ -24,14 +24,9 @@ export type UserAuthData = {
 
 export type SendSmsCodeData = SendSmsCodeBodyDTO;
 
-export type VerifyPhoneData = VerifyPhoneBodyDTO & {
-  verificationCode: number;
-};
+export type VerifyPhoneData = VerifyPhoneBodyDTO;
 
-export type ChangePasswordData = ChangePasswordBodyDTO & {
-  newPassword: string;
-  confirmNewPassword: string;
-};
+export type ChangePasswordData = ChangePasswordBodyDTO;
 
 export type Device = {
   device: string;

@@ -32,7 +32,9 @@
       "@libs/dtos": ["libs/dtos/src"],
       "@libs/dtos/*": ["libs/dtos/src/*"],
       "@libs/helpers": ["libs/helpers/src"],
-      "@libs/helpers/*": ["libs/helpers/src/*"]
+      "@libs/helpers/*": ["libs/helpers/src/*"],
+      "@libs/sms": ["libs/sms/src"],
+      "@libs/sms/*": ["libs/sms/src/*"]
     }
   },
   "exclude": ["node_modules", "dist"],

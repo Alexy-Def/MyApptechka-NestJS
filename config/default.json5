@@ -66,4 +66,12 @@
     PRIVATE_BUCKET: '',
     PUBLIC_BUCKET: '',
   },
+  SMS: {
+    USERNAME: '',
+    PASSWORD: '',
+  },
+  REDIS: {
+    HOST: 'localhost',
+    PORT: 6379,
+  },
 }
