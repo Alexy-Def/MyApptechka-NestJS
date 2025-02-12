@@ -1,14 +1,21 @@
 import { USER_ROLE } from '@modules/users/constants';
 
-import { SignUpBodyDTO, SignInBodyDTO, SendSmsCodeBodyDTO, VerifyPhoneBodyDTO, ChangePasswordBodyDTO } from '../dtos';
+import {
+  SignUpBodyDTO,
+  SignInBodyDTO,
+  SendSmsCodeBodyDTO,
+  VerifyPhoneBodyDTO,
+  ChangePasswordBodyDTO,
+  TokensResponseDTO,
+  RefreshTokenBodyDTO,
+} from '../dtos';
+import { RefreshTokenEntity } from '../entities';
 
 export type SignUpData = SignUpBodyDTO;
 export type SignInData = SignInBodyDTO;
 
-export type Tokens = {
-  accessToken: string;
-  refreshToken: string;
-};
+export type RefreshToken = RefreshTokenBodyDTO;
+export type Tokens = TokensResponseDTO;
 
 export type UserAuthData = {
   id: number;
@@ -25,3 +32,10 @@ export type ChangePasswordData = ChangePasswordBodyDTO & {
   newPassword: string;
   confirmNewPassword: string;
 };
+
+export type Device = {
+  device: string;
+  isMobileDevice: boolean;
+};
+
+export type RefreshTokenData = RefreshTokenEntity;

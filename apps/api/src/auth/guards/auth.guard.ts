@@ -6,7 +6,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { UnauthorizedError } from '@modules/core/exceptions';
 import { AUTH } from 'config';
 
-import { AUTH_CONSTANTS, COOKIE_KEY } from '../constants';
+import { AUTH_CONSTANTS, COOKIE_KEY, AUTH_HEADERS } from '../constants';
 import { NEW_AUTH_ERRORS } from '../constants/errors';
 
 @Injectable()
@@ -25,7 +25,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     const request = context.switchToHttp().getRequest();
-    const token = request.cookies[COOKIE_KEY.ACCESS_TOKEN];
+    let token = request.cookies[COOKIE_KEY.ACCESS_TOKEN];
+
+    if (!token) {
+      const authHeader = request.headers[AUTH_HEADERS.AUTHORIZATION];
+
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1];
+      }
+    }
 
     if (!token) {
       throw new UnauthorizedError(NEW_AUTH_ERRORS.ACCESS_TOKEN_NOT_FOUND);
