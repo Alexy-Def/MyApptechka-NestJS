@@ -13,8 +13,8 @@ export class NotificationService implements OnModuleInit {
   }
 
   subscribeToNewsChannel(): void {
-    this.redisService.subscribe(CHANNELS.NEWS, (message) => {
-      this.webSocketService.emit(CHANNELS.NEWS, message);
+    this.redisService.subscribe(CHANNELS.NEWS, (data) => {
+      this.webSocketService.emit(CHANNELS.NEWS, data);
     });
   }
 }

@@ -6,7 +6,7 @@ export class WebSocketService {
   @WebSocketServer()
   server: Server;
 
-  emit(channel: string, message: string): void {
-    this.server.emit(channel, message);
+  emit<T>(channel: string, data: T): void {
+    this.server.emit(channel, data);
   }
 }

@@ -41,20 +41,20 @@ export class RedisService implements OnModuleDestroy {
     await this.cacheClient.lrem(key, 1, value);
   }
 
-  async publish<T>(channel: string, message: T): Promise<void> {
-    await this.pubClient.publish(channel, JSON.stringify(message));
+  async publish<T>(channel: string, data: T): Promise<void> {
+    await this.pubClient.publish(channel, JSON.stringify(data));
   }
 
-  subscribe(channel: string, handler: (message: any) => void): void {
+  subscribe(channel: string, handler: (data: any) => void): void {
     this.subClient.subscribe(channel, (err) => {
       if (err) {
         throw new ServiceError(REDIS_ERRORS.SUBSCRIBE_ERROR, { details: [{ key: channel }] });
       }
     });
 
-    this.subClient.on(SUBSCRIBE_EVENT_TYPE.MESSAGE, (subscribedChannel, message) => {
+    this.subClient.on(SUBSCRIBE_EVENT_TYPE.MESSAGE, (subscribedChannel, data) => {
       if (subscribedChannel === channel) {
-        handler(JSON.parse(message));
+        handler(JSON.parse(data));
       }
     });
   }

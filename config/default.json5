@@ -68,7 +68,7 @@
   },
   SMS: {
     USERNAME: '193197322',
-    PASSWORD: 'aA8M8yAdl9sMs',
+    PASSWORD: '',
   },
   REDIS: {
     HOST: 'localhost',
