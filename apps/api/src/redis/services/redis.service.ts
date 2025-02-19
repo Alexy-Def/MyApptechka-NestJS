@@ -41,7 +41,7 @@ export class RedisService implements OnModuleDestroy {
     await this.cacheClient.lrem(key, 1, value);
   }
 
-  async publish(channel: string, message: string): Promise<void> {
+  async publish<T>(channel: string, message: T): Promise<void> {
     await this.pubClient.publish(channel, JSON.stringify(message));
   }
 

@@ -14,6 +14,7 @@ import {
   TokensResponseDTO,
   RefreshTokenBodyDTO,
   AccessTokenResponseDTO,
+  SendFeedbackBodyDTO,
 } from '../dtos';
 import { AuthService } from '../services';
 
@@ -85,5 +86,11 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<AccessTokenResponseDTO | void> {
     await this.authService.refreshTokens(headers, body, response);
+  }
+
+  @Post('send-feedback')
+  @ResponseInfo()
+  public async sendFeedback(@Body() body: SendFeedbackBodyDTO): Promise<void> {
+    await this.authService.sendFeedback(body);
   }
 }

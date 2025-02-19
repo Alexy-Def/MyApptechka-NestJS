@@ -67,11 +67,15 @@
     PUBLIC_BUCKET: '',
   },
   SMS: {
-    USERNAME: '',
-    PASSWORD: '',
+    USERNAME: '193197322',
+    PASSWORD: 'aA8M8yAdl9sMs',
   },
   REDIS: {
     HOST: 'localhost',
     PORT: 6379,
+  },
+  FEEDBACK_PHONE: {
+    AUTH: '',
+    AID_KIT: '',
   },
 }
