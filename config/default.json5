@@ -78,4 +78,7 @@
     AUTH: '',
     AID_KIT: '',
   },
+  GRAPHQL: {
+    SCHEMA_PATH: 'src/schema.gql',
+  },
 }

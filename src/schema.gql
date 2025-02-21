@@ -1,0 +1,42 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  createPharmacy(
+    address: String!
+    endWorkAt: DateTime!
+    name: String!
+    slogan: String!
+    startWorkAt: DateTime!
+  ): PharmacyModel!
+  deletePharmacy(id: Float!): Boolean!
+  updatePharmacy(data: UpdatePharmacyInput!, id: Float!): PharmacyModel!
+}
+
+type PharmacyModel {
+  address: String!
+  endWorkAt: DateTime!
+  id: Int!
+  name: String!
+  slogan: String
+  startWorkAt: DateTime!
+}
+
+type Query {
+  getAllPharmacies: [PharmacyModel!]!
+  getPharmacy(id: Float!): PharmacyModel!
+}
+
+input UpdatePharmacyInput {
+  address: String!
+  endWorkAt: DateTime!
+  name: String!
+  slogan: String
+  startWorkAt: DateTime!
+}
