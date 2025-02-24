@@ -1,21 +1,30 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 
 @InputType()
 export class UpdatePharmacyInput {
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   name?: string;
 
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
   @MinLength(10)
   address?: string;
 
-  @Field()
-  startWorkAt?: Date;
-
-  @Field()
-  endWorkAt?: Date;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  startWorkAt?: string;
 
   @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  endWorkAt?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   slogan?: string;
 }

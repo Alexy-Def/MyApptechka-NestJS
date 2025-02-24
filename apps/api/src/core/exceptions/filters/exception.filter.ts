@@ -14,8 +14,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   @sentry()
   catch(exception: unknown, host: ArgumentsHost): void {
-    const ctx = host.switchToHttp();
-    const response: Response = ctx.getResponse();
+    const contextType = host.getType();
+
+    if (contextType === 'http') {
+      return this.handleHttpException(exception, host);
+    }
+
+    if (contextType === 'rpc' || contextType === 'ws') {
+      return this.handleRpcOrWsException(exception);
+    }
+
+    return this.handleGraphQLException(exception);
+  }
+
+  private handleHttpException(exception: unknown, host: ArgumentsHost): void {
+    const httpContext = host.switchToHttp();
+    const response = httpContext.getResponse<Response>();
 
     if (exception instanceof AbstractError || exception instanceof HttpException) {
       const status = getErrorStatus(exception);
@@ -30,19 +44,29 @@ export class HttpExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    if (exception instanceof Error) {
-      this.logger.error(exception, exception.stack);
-      sentryService.error(exception);
-    } else {
-      // case if not error was thrown, example: throw 'string_not_error'
-      sentryService.error(new Error(exception?.toString() ?? 'UNKNOWN_ERROR'));
-    }
+    const error = exception instanceof Error ? exception : new Error(String(exception));
+    this.logger.error(error, error.stack);
+    sentryService.error(error);
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       message: 'Internal Server Error',
     });
+  }
 
-    return;
+  private handleGraphQLException(exception: unknown): void {
+    const error = exception instanceof Error ? exception : new Error(String(exception));
+
+    this.logger.error(`[GraphQL Error] ${error.message}`, error.stack);
+    sentryService.error(error);
+
+    throw exception;
+  }
+
+  private handleRpcOrWsException(exception: unknown): void {
+    const error = exception instanceof Error ? exception : new Error(String(exception));
+
+    this.logger.error(error, error.stack);
+    sentryService.error(error);
   }
 }

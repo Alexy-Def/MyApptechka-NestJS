@@ -11,10 +11,10 @@ export class PharmacyEntity extends BaseEntity {
   public address: string;
 
   @Column()
-  public startWorkAt: Date;
+  public startWorkAt: string;
 
   @Column()
-  public endWorkAt: Date;
+  public endWorkAt: string;
 
   @Column({ type: 'varchar', nullable: true, default: null })
   public slogan: string | null;

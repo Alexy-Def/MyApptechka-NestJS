@@ -3,18 +3,18 @@ import { GraphQLError } from 'graphql';
 
 import { PHARMACY_ERRORS } from '../constants';
 import { CreatePharmacyArgs, UpdatePharmacyInput } from '../dtos';
-import { PharmacyModel } from '../models';
+import { Pharmacy } from '../models';
 import { PharmacyRepository } from '../repositories';
 
 @Injectable()
 export class PharmacyService {
   constructor(private readonly pharmacyRepository: PharmacyRepository) {}
 
-  public async getPharmacies(): Promise<PharmacyModel[]> {
+  public async getPharmacies(): Promise<Pharmacy[]> {
     return this.pharmacyRepository.find();
   }
 
-  public async getPharmacyByIdOrFail(id: number): Promise<PharmacyModel | undefined> {
+  public async getPharmacyByIdOrFail(id: number): Promise<Pharmacy> {
     const pharmacy = await this.pharmacyRepository.findOneBy({ id });
 
     if (!pharmacy) {
@@ -24,11 +24,11 @@ export class PharmacyService {
     return pharmacy;
   }
 
-  public async createPharmacy(data: CreatePharmacyArgs): Promise<PharmacyModel> {
+  public async createPharmacy(data: CreatePharmacyArgs): Promise<Pharmacy> {
     return this.pharmacyRepository.save(data);
   }
 
-  public async updatePharmacy(id: number, data: UpdatePharmacyInput): Promise<PharmacyModel> {
+  public async updatePharmacy(id: number, data: UpdatePharmacyInput): Promise<Pharmacy> {
     const pharmacy = await this.getPharmacyByIdOrFail(id);
 
     Object.assign(pharmacy!, data);

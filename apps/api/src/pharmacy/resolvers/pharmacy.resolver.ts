@@ -1,30 +1,32 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { ClassSerializerInterceptor, UseInterceptors } from '@nestjs/common';
+import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 
 import { CreatePharmacyArgs, UpdatePharmacyInput } from '../dtos';
-import { PharmacyModel } from '../models';
+import { Pharmacy } from '../models';
 import { PharmacyService } from '../services';
 
-@Resolver(() => PharmacyModel)
+@Resolver(() => Pharmacy)
+@UseInterceptors(ClassSerializerInterceptor)
 export class PharmacyResolver {
   constructor(private readonly pharmacyService: PharmacyService) {}
 
-  @Query(() => [PharmacyModel])
-  async getAllPharmacies(): Promise<PharmacyModel[]> {
+  @Query(() => [Pharmacy])
+  async getAllPharmacies(): Promise<Pharmacy[]> {
     return this.pharmacyService.getPharmacies();
   }
 
-  @Query(() => PharmacyModel)
-  async getPharmacy(@Args('id') id: number): Promise<PharmacyModel | undefined> {
+  @Query(() => Pharmacy)
+  async getPharmacy(@Args('id', { type: () => Int }) id: number): Promise<Pharmacy> {
     return this.pharmacyService.getPharmacyByIdOrFail(id);
   }
 
-  @Mutation(() => PharmacyModel)
-  async createPharmacy(@Args() data: CreatePharmacyArgs): Promise<PharmacyModel> {
+  @Mutation(() => Pharmacy)
+  async createPharmacy(@Args() data: CreatePharmacyArgs): Promise<Pharmacy> {
     return this.pharmacyService.createPharmacy(data);
   }
 
-  @Mutation(() => PharmacyModel)
-  async updatePharmacy(@Args('id') id: number, @Args('data') data: UpdatePharmacyInput): Promise<PharmacyModel> {
+  @Mutation(() => Pharmacy)
+  async updatePharmacy(@Args('id') id: number, @Args('data') data: UpdatePharmacyInput): Promise<Pharmacy> {
     return this.pharmacyService.updatePharmacy(id, data);
   }
 

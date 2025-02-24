@@ -1,23 +1,27 @@
 import { Field, ArgsType } from '@nestjs/graphql';
-import { IsDateString, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 
 @ArgsType()
 export class CreatePharmacyArgs {
   @Field()
+  @IsString()
   name: string;
 
   @Field()
+  @IsString()
   @MinLength(10)
   address: string;
 
   @Field()
-  @IsDateString()
-  startWorkAt: Date;
+  @IsString()
+  startWorkAt: string;
 
   @Field()
-  @IsDateString()
-  endWorkAt: Date;
+  @IsString()
+  endWorkAt: string;
 
-  @Field()
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   slogan?: string;
 }
