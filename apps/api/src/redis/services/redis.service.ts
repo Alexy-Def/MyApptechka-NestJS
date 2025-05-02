@@ -1,12 +1,14 @@
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import Redis from 'ioredis';
 
+import { InjectLogger, Logger } from '@libs/nestjs-logger';
 import { ServiceError } from '@modules/core/exceptions';
 
 import { REDIS_ERRORS, PROVIDER_TOKENS, SUBSCRIBE_EVENT_TYPE } from '../constants';
 
 @Injectable()
 export class RedisService implements OnModuleDestroy {
+  @InjectLogger('redis-service') logger: Logger;
   constructor(
     @Inject(PROVIDER_TOKENS.REDIS_CACHE) private readonly cacheClient: Redis,
     @Inject(PROVIDER_TOKENS.REDIS_PUB) private readonly pubClient: Redis,
@@ -45,12 +47,13 @@ export class RedisService implements OnModuleDestroy {
     await this.pubClient.publish(channel, JSON.stringify(message));
   }
 
-  subscribe(channel: string, handler: (message: any) => void): void {
+  subscribe(channel: string, handler: (message: string) => void): void {
     this.subClient.subscribe(channel, (err) => {
       if (err) {
         throw new ServiceError(REDIS_ERRORS.SUBSCRIBE_ERROR, { details: [{ key: channel }] });
       }
     });
+    this.logger.log(`Subscribed to ${channel} successfully`);
 
     this.subClient.on(SUBSCRIBE_EVENT_TYPE.MESSAGE, (subscribedChannel, message) => {
       if (subscribedChannel === channel) {

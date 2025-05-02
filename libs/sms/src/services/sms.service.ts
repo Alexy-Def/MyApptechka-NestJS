@@ -15,21 +15,21 @@ export class SmsService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     try {
-      await this.balance();
+      await this.getBalance();
     } catch (error) {
       throw new Error(SMS_ERRORS.WRONG_AUTH);
     }
   }
 
-  private async balance(): Promise<void> {
-    await this.smsClient.balance();
-  }
-
-  public async send(phone: string, text: string): Promise<void> {
+  public async sendSms(phone: string, text: string): Promise<void> {
     try {
       await this.smsClient.send(phone, text, false);
     } catch (error) {
       throw new Error(SMS_ERRORS.SMS_NOT_SENT);
     }
+  }
+
+  private async getBalance(): Promise<void> {
+    await this.smsClient.balance();
   }
 }

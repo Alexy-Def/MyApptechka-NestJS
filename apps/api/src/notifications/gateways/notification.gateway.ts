@@ -12,7 +12,7 @@ export class NotificationGateway implements OnGatewayInit {
   constructor(private readonly redisService: RedisService) {}
 
   afterInit(): void {
-    this.redisService.subscribe(CHANNELS.NEWS, (message: any) => {
+    this.redisService.subscribe(CHANNELS.NEWS, (message: string) => {
       this.server.emit(CHANNELS.NEWS, message);
     });
   }
