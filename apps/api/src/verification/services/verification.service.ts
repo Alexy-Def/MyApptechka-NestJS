@@ -17,17 +17,15 @@ import {
 export class VerificationService {
   constructor(private readonly redisService: RedisService, private readonly smsService: SmsService) {}
 
-  private getVerificationKey(phone: string): string {
-    return `${CACHE_KEY_NAME.VERIFICATION}:${phone}`;
-  }
-
   async sendVerificationCode(phone: string, textTemplate: string): Promise<void> {
     const code = generateRandomSixDigits();
     const text = textTemplate.replace(CODE_PLACEHOLDER, code.toString());
     const cacheKey = this.getVerificationKey(phone);
     await this.redisService.setListItem(cacheKey, code);
-    await this.redisService.setCacheTtl(cacheKey, SMS_CODE_CACHE_TTL);
-    await this.smsService.send(phone, text);
+    await Promise.all([
+      this.redisService.setCacheTtl(cacheKey, SMS_CODE_CACHE_TTL),
+      this.smsService.sendSms(phone, text),
+    ]);
   }
 
   async verifyCode(phone: string, code: number): Promise<void> {
@@ -37,5 +35,9 @@ export class VerificationService {
     if (!codes.includes(code)) {
       throw new ServiceError(VERIFICATION_ERRORS.INVALID_VERIFICATION_CODE);
     }
+  }
+
+  private getVerificationKey(phone: string): string {
+    return `${CACHE_KEY_NAME.VERIFICATION}:${phone}`;
   }
 }
