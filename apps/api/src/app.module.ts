@@ -13,6 +13,9 @@ import { SentryModule } from '@modules/core/sentry';
 import { ValidationModule } from '@modules/core/validation';
 import { GeneralModule } from '@modules/general';
 import { HealthCheckModule } from '@modules/health-check';
+import { NewsModule } from '@modules/news';
+import { NotificationModule } from '@modules/notifications';
+import { RedisModule } from '@modules/redis';
 import { UsersModule } from '@modules/users';
 import { APM } from 'config';
 import ormconfig from 'ormconfig';
@@ -37,6 +40,9 @@ import ormconfig from 'ormconfig';
     HealthCheckModule,
     AuthModule,
     AidKitModule,
+    RedisModule,
+    NewsModule,
+    NotificationModule,
     ScheduleModule.forRoot(),
   ],
   controllers: [],

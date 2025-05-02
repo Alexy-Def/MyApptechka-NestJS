@@ -133,6 +133,18 @@
         "responses": { "200": { "description": "" } },
         "tags": ["aid-kit"]
       }
+    },
+    "/api/v1/news/publish": {
+      "post": {
+        "operationId": "NewsController_sendNews",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateNewsBodyDto" } } }
+        },
+        "responses": { "200": { "description": "" } },
+        "tags": ["news"]
+      }
     }
   },
   "info": { "title": "template", "description": "", "version": "0.1.0", "contact": {} },
@@ -192,6 +204,11 @@
       "RefreshTokenBodyDTO": {
         "type": "object",
         "properties": { "refreshToken": { "type": "string", "example": "string" } }
+      },
+      "CreateNewsBodyDto": {
+        "type": "object",
+        "properties": { "text": { "type": "string", "example": "string" } },
+        "required": ["text"]
       }
     }
   }

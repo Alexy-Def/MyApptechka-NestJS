@@ -1,0 +1,3 @@
+export const REDIS_ERRORS = {
+  SUBSCRIBE_ERROR: 'SUBSCRIBE_ERROR',
+};
