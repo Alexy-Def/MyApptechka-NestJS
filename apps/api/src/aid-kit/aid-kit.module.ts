@@ -2,7 +2,9 @@ import { Module } from '@nestjs/common';
 
 import { TypeOrmExtModule } from '@libs/typeorm-ext';
 import { AuthModule } from '@modules/auth';
+import { FeedbackModule } from '@modules/feedback';
 import { UsersModule } from '@modules/users';
+import { FEEDBACK_PHONE } from 'config';
 
 import * as Controllers from './controllers';
 import * as Repositories from './repositories';
@@ -10,7 +12,14 @@ import * as Services from './services';
 
 @Module({
   controllers: Object.values(Controllers),
-  imports: [TypeOrmExtModule.forCustomRepository(Object.values(Repositories)), AuthModule, UsersModule],
+  imports: [
+    TypeOrmExtModule.forCustomRepository(Object.values(Repositories)),
+    FeedbackModule.register({
+      feedbackPhone: FEEDBACK_PHONE.AUTH,
+    }),
+    AuthModule,
+    UsersModule,
+  ],
   providers: Object.values(Services),
   exports: Object.values(Services),
 })

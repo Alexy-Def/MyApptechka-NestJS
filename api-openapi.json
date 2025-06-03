@@ -126,10 +126,26 @@
         "tags": ["auth"]
       }
     },
-    "/api/v1/aid-kit": {
-      "get": {
-        "operationId": "AidKitController_getMyAidKits",
+    "/api/v1/auth/send-feedback": {
+      "post": {
+        "operationId": "AuthController_sendFeedback",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SendFeedbackBodyDTO" } } }
+        },
+        "responses": { "200": { "description": "" } },
+        "tags": ["auth"]
+      }
+    },
+    "/api/v1/aid-kit/feedback": {
+      "post": {
+        "operationId": "AidKitController_sendFeedback",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SendFeedbackBodyDTO" } } }
+        },
         "responses": { "200": { "description": "" } },
         "tags": ["aid-kit"]
       }
@@ -204,6 +220,11 @@
       "RefreshTokenBodyDTO": {
         "type": "object",
         "properties": { "refreshToken": { "type": "string", "example": "string" } }
+      },
+      "SendFeedbackBodyDTO": {
+        "type": "object",
+        "properties": { "message": { "type": "string", "example": "string" } },
+        "required": ["message"]
       },
       "CreateNewsBodyDto": {
         "type": "object",

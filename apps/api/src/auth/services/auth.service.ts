@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 
 import { hashPassword, compareHashedPassword } from '@libs/helpers';
 import { ServiceError, UnauthorizedError, EntityNotFoundError } from '@modules/core/exceptions';
+import { FeedbackService, SmsFeedback } from '@modules/feedback';
 import { USER_ROLE } from '@modules/users/constants';
 import { UserService, FamilyService } from '@modules/users/services';
 import { VerificationService } from '@modules/verification';
@@ -29,6 +30,7 @@ export class AuthService {
     private readonly familyService: FamilyService,
     private readonly userService: UserService,
     private readonly verificationService: VerificationService,
+    private readonly feedbackService: FeedbackService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -135,5 +137,9 @@ export class AuthService {
   public async signOut(body: RefreshToken, response: Response): Promise<void> {
     await this.authTokenService.deactivateRefreshToken(body);
     clearCookie(response);
+  }
+
+  public async sendFeedback(body: SmsFeedback): Promise<void> {
+    await this.feedbackService.sendSmsFeedback(body);
   }
 }

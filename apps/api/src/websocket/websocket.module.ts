@@ -1,12 +1,9 @@
 import { Module } from '@nestjs/common';
 
-import { WebSocketModule } from '@modules/websocket';
-
 import * as Services from './services';
 
 @Module({
-  imports: [WebSocketModule],
   providers: Object.values(Services),
   exports: Object.values(Services),
 })
-export class NotificationModule {}
+export class WebSocketModule {}

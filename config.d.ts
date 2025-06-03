@@ -87,4 +87,9 @@ declare module 'config' {
     readonly HOST: string;
     readonly PORT: number;
   };
+
+  export const FEEDBACK_PHONE: {
+    readonly AUTH: string;
+    readonly AID_KIT: string;
+  };
 }

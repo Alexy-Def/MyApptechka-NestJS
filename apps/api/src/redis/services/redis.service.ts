@@ -43,8 +43,9 @@ export class RedisService implements OnModuleDestroy {
     await this.cacheClient.lrem(key, 1, value);
   }
 
-  async publish(channel: string, message: string): Promise<void> {
-    await this.pubClient.publish(channel, JSON.stringify(message));
+  // for data now use object, but would be better to create certain type
+  async publish(channel: string, data: string | object): Promise<void> {
+    await this.pubClient.publish(channel, JSON.stringify(data));
   }
 
   subscribe(channel: string, handler: (message: string) => void): void {
@@ -55,9 +56,9 @@ export class RedisService implements OnModuleDestroy {
     });
     this.logger.log(`Subscribed to ${channel} successfully`);
 
-    this.subClient.on(SUBSCRIBE_EVENT_TYPE.MESSAGE, (subscribedChannel, message) => {
+    this.subClient.on(SUBSCRIBE_EVENT_TYPE.MESSAGE, (subscribedChannel, data) => {
       if (subscribedChannel === channel) {
-        handler(JSON.parse(message));
+        handler(JSON.parse(data));
       }
     });
   }

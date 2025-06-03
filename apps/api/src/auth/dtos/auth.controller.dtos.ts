@@ -65,3 +65,8 @@ export class TokensResponseDTO extends AccessTokenResponseDTO {
   @ApiPropertyString()
   public refreshToken: string;
 }
+
+export class SendFeedbackBodyDTO {
+  @ApiPropertyString()
+  public message: string;
+}
