@@ -13,6 +13,6 @@ export class FeedbackService {
   ) {}
 
   async sendSmsFeedback(data: SmsFeedback): Promise<void> {
-    await this.smsService.send(this.options.feedbackPhone, data.message);
+    await this.smsService.sendSms(this.options.feedbackPhone, data.message);
   }
 }

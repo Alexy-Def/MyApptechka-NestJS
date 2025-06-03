@@ -126,7 +126,7 @@
         "tags": ["auth"]
       }
     },
-    "/api/v1/auth/send-feedback": {
+    "/api/v1/auth/feedback": {
       "post": {
         "operationId": "AuthController_sendFeedback",
         "parameters": [],
@@ -138,15 +138,7 @@
         "tags": ["auth"]
       }
     },
-    "/api/v1/aid-kit": {
-      "get": {
-        "operationId": "AidKitController_getMyAidKits",
-        "parameters": [],
-        "responses": { "200": { "description": "" } },
-        "tags": ["aid-kit"]
-      }
-    },
-    "/api/v1/aid-kit/send-feedback": {
+    "/api/v1/aid-kit/feedback": {
       "post": {
         "operationId": "AidKitController_sendFeedback",
         "parameters": [],

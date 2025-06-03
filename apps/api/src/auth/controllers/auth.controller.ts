@@ -88,7 +88,7 @@ export class AuthController {
     await this.authService.refreshTokens(headers, body, response);
   }
 
-  @Post('send-feedback')
+  @Post('feedback')
   @ResponseInfo()
   public async sendFeedback(@Body() body: SendFeedbackBodyDTO): Promise<void> {
     await this.authService.sendFeedback(body);

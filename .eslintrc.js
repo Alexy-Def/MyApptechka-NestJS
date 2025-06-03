@@ -1,6 +1,6 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
-  ignorePatterns: ['node_modules', 'dist'],
+  ignorePatterns: ['node_modules', 'dist', '.eslintrc.js'],
   parserOptions: {
     project: 'tsconfig.json',
     sourceType: 'module',
@@ -113,6 +113,19 @@ module.exports = {
       {
         multiline: { delimiter: 'semi', requireLast: true },
         singleline: { delimiter: 'semi', requireLast: false },
+      },
+    ],
+    '@typescript-eslint/member-ordering': [
+      'error',
+      {
+        default: [
+          'public-static-method',
+          'protected-static-method',
+          'private-static-method',
+          'public-instance-method',
+          'protected-instance-method',
+          'private-instance-method',
+        ],
       },
     ],
   },
