@@ -31,14 +31,14 @@ export class PharmacyService {
   public async updatePharmacy(id: number, data: UpdatePharmacyInput): Promise<Pharmacy> {
     const pharmacy = await this.getPharmacyByIdOrFail(id);
 
-    Object.assign(pharmacy!, data);
+    Object.assign(pharmacy, data);
 
     return this.pharmacyRepository.save(pharmacy!);
   }
 
   public async deletePharmacy(id: number): Promise<boolean> {
-    await this.pharmacyRepository.delete(id);
+    const result = await this.pharmacyRepository.delete(id);
 
-    return true;
+    return typeof result.affected === 'number' && result.affected > 0;
   }
 }

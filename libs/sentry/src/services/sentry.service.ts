@@ -1,7 +1,7 @@
 import * as sentry from '@sentry/node';
 import { Extras } from '@sentry/types/dist/extra';
 
-import { ENVIRONMENT as ENV } from '@modules/core/constants';
+import { ENVIRONMENT_NAME as ENV } from '@modules/core/constants';
 import { SENTRY, ENVIRONMENT } from 'config';
 
 import { ISentryService } from '../interfaces';

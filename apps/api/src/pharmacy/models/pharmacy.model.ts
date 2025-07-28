@@ -33,5 +33,5 @@ export class Pharmacy {
 
   @Field(() => String, { nullable: true })
   @Expose()
-  slogan?: string | null;
+  slogan: string | null = null;
 }

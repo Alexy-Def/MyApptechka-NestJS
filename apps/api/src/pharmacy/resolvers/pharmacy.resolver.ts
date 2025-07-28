@@ -15,7 +15,7 @@ export class PharmacyResolver {
     return this.pharmacyService.getPharmacies();
   }
 
-  @Query(() => Pharmacy)
+  @Query(() => Pharmacy, { nullable: true })
   async getPharmacy(@Args('id', { type: () => Int }) id: number): Promise<Pharmacy> {
     return this.pharmacyService.getPharmacyByIdOrFail(id);
   }

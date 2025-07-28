@@ -6,44 +6,18 @@ import { tap, catchError } from 'rxjs/operators';
 
 import { InjectLogger, Logger } from '@libs/nestjs-logger';
 import { AbstractError, getErrorStatus, IAbstractError } from '@modules/core/exceptions';
+import { ENVIRONMENT } from 'config';
+
+import { ENVIRONMENT_NAME } from '../constants';
+
+import { LogObject } from './types';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-  @InjectLogger('logging.interceptor') private readonly logger: Logger;
-
-  private instanceOfAbstractError(object: any): object is IAbstractError {
-    return typeof object === 'object' && object !== null && 'details' in object;
-  }
+  @InjectLogger(LoggingInterceptor.name) private readonly logger: Logger;
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    let req: Request | undefined;
-    let user: any;
-    let originalUrl = '';
-    let method = '';
-    let query: any;
-    let params: any;
-
-    if (context.getType<GqlContextType>() === 'graphql') {
-      const gqlContext = GqlExecutionContext.create(context);
-      const info = gqlContext.getInfo();
-
-      if (info) {
-        const ctx = gqlContext.getContext();
-        req = ctx?.req;
-        user = ctx?.req?.user;
-        originalUrl = info.fieldName;
-        method = 'GraphQL';
-        query = {};
-        params = {};
-      }
-    } else {
-      req = context.switchToHttp().getRequest<Request>();
-      user = req?.user;
-      originalUrl = decodeURI(req?.originalUrl || '');
-      method = req?.method || 'UNKNOWN';
-      query = req?.query;
-      params = req?.params;
-    }
+    const { req, user, originalUrl, method, query, params } = this.extractRequestData(context);
 
     if (!originalUrl) {
       this.logger.warn('originalUrl is undefined, possible issue with request context');
@@ -56,46 +30,112 @@ export class LoggingInterceptor implements NestInterceptor {
     }
 
     const logObject = { body, user, originalUrl, query, params, method };
-    this.logger.verbose(`[${method}] ${originalUrl} :: starting`);
 
+    this.logger.verbose(`[${method}] ${originalUrl} :: starting`);
     const now = Date.now();
 
     return next.handle().pipe(
       tap(() => {
-        const ms = Date.now() - now;
-        const message = { ...logObject, ms };
-
-        if (!process.env.NODE_ENV || ['development', 'test'].includes(process.env.NODE_ENV)) {
-          this.logger.debug(
-            `[${message.method}] :: [${ms / 1000}s] :: OK :: ${message.originalUrl} user(${message.user?.id || null})`,
-          );
-        } else {
-          this.logger.debug(message);
-        }
+        this.logSuccess(logObject, Date.now() - now);
       }),
       catchError((error: Error | HttpException | AbstractError) => {
-        const errorName = error.name;
-        const errorMessage = error.message;
-        const details = this.instanceOfAbstractError(error) ? error.details : null;
-        const ms = Date.now() - now;
-        const status = getErrorStatus(error);
-        const cause = error instanceof AbstractError ? error.cause : null;
-        const message = { ...logObject, ms, status, details, cause, name: errorName, message: errorMessage };
-
-        if (!process.env.NODE_ENV || ['development', 'test'].includes(process.env.NODE_ENV)) {
-          let str = `[${message.method}] :: [${ms / 1000}s] :: status: ${status} :: ${message.originalUrl}`;
-          str += ` :: user(${message.user?.id || null})`;
-          str +=
-            details && (!Array.isArray(details) || details.length) ? ` :: details (${JSON.stringify(details)})` : '';
-          str += ` :: ${errorName}::${errorMessage}`;
-          str += cause ? `:: cause (${JSON.stringify(cause)})` : '';
-          this.logger.debug(str);
-        } else {
-          this.logger.debug(message);
-        }
+        this.logError(error, logObject, Date.now() - now);
 
         return throwError(error);
       }),
     );
+  }
+
+  private extractRequestData(context: ExecutionContext): {
+    req: Request | undefined;
+    user: any;
+    originalUrl: string;
+    method: string;
+    query: any;
+    params: any;
+  } {
+    if (context.getType<GqlContextType>() === 'graphql') {
+      const gqlContext = GqlExecutionContext.create(context);
+      const info = gqlContext.getInfo();
+
+      if (!info) {
+        return {
+          req: undefined,
+          user: undefined,
+          originalUrl: '',
+          method: '',
+          query: {},
+          params: {},
+        };
+      }
+
+      const ctx = gqlContext.getContext();
+      const req = ctx?.req;
+
+      return {
+        req,
+        user: req?.user,
+        originalUrl: info.fieldName,
+        method: 'GraphQL',
+        query: {},
+        params: {},
+      };
+    }
+
+    const req = context.switchToHttp().getRequest<Request>();
+
+    return {
+      req,
+      user: req?.user,
+      originalUrl: decodeURI(req?.originalUrl || ''),
+      method: req?.method || 'UNKNOWN',
+      query: req?.query,
+      params: req?.params,
+    };
+  }
+
+  private logSuccess(logObject: any, ms: number): void {
+    if (!ENVIRONMENT || [ENVIRONMENT_NAME.DEVELOP, ENVIRONMENT_NAME.TEST].includes(ENVIRONMENT)) {
+      this.logger.debug(
+        `[${logObject.method}] :: [${ms / 1000}s] :: OK :: ${logObject.originalUrl} user(${
+          logObject.user?.id || null
+        })`,
+      );
+    } else {
+      this.logger.debug({ ...logObject, ms });
+    }
+  }
+
+  private logError(error: Error | HttpException | AbstractError, logObject: LogObject, ms: number): void {
+    const errorName = error.name;
+    const errorMessage = error.message;
+    const status = getErrorStatus(error);
+    const details = this.instanceOfAbstractError(error) ? error.details : null;
+    const cause = error instanceof AbstractError ? error.cause : null;
+
+    const message = {
+      ...logObject,
+      ms,
+      status,
+      name: errorName,
+      message: errorMessage,
+      details,
+      cause,
+    };
+
+    if (!ENVIRONMENT || [ENVIRONMENT_NAME.DEVELOP, ENVIRONMENT_NAME.TEST].includes(ENVIRONMENT)) {
+      let str = `[${logObject.method}] :: [${ms / 1000}s] :: status: ${status} :: ${logObject.originalUrl}`;
+      str += ` :: user(${logObject.user?.id || null})`;
+      str += details && (!Array.isArray(details) || details.length) ? ` :: details (${JSON.stringify(details)})` : '';
+      str += ` :: ${errorName}::${errorMessage}`;
+      str += cause ? `:: cause (${JSON.stringify(cause)})` : '';
+      this.logger.debug(str);
+    } else {
+      this.logger.debug(message);
+    }
+  }
+
+  private instanceOfAbstractError(object: any): object is IAbstractError {
+    return typeof object === 'object' && object !== null && 'details' in object;
   }
 }

@@ -11,6 +11,7 @@ import { ApmModule } from '@libs/apm';
 import { LoggerModule } from '@libs/nestjs-logger';
 import { AidKitModule } from '@modules/aid-kit';
 import { AuthModule } from '@modules/auth';
+import { ENVIRONMENT_NAME } from '@modules/core/constants';
 import { ExceptionsModule } from '@modules/core/exceptions';
 import { AppLoggerFactory, LoggingInterceptor } from '@modules/core/logger';
 import { SentryModule } from '@modules/core/sentry';
@@ -22,7 +23,7 @@ import { NotificationModule } from '@modules/notifications';
 import { PharmacyModule } from '@modules/pharmacy';
 import { RedisModule } from '@modules/redis';
 import { UsersModule } from '@modules/users';
-import { APM, GRAPHQL } from 'config';
+import { APM, GRAPHQL, ENVIRONMENT } from 'config';
 import ormconfig from 'ormconfig';
 
 @Module({
@@ -52,10 +53,10 @@ import ormconfig from 'ormconfig';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), GRAPHQL.SCHEMA_PATH),
-      playground: true,
+      playground: ENVIRONMENT !== ENVIRONMENT_NAME.PRODUCTION,
       sortSchema: true,
       introspection: true,
-      debug: true,
+      debug: ENVIRONMENT !== ENVIRONMENT_NAME.PRODUCTION,
     }),
     PharmacyModule,
   ],

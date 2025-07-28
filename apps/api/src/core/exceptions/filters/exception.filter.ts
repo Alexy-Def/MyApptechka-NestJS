@@ -2,6 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import { Response } from 'express';
 
 import { InjectLogger, Logger } from '@libs/nestjs-logger';
+import { REQUEST_CONTEXT_TYPE } from '@modules/core/constants';
 import { AbstractError } from '@modules/core/exceptions';
 import { sentry, sentryService } from '@modules/core/sentry';
 
@@ -16,15 +17,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const contextType = host.getType();
 
-    if (contextType === 'http') {
-      return this.handleHttpException(exception, host);
+    switch (contextType) {
+      case REQUEST_CONTEXT_TYPE.HTTP:
+        return this.handleHttpException(exception, host);
+      case REQUEST_CONTEXT_TYPE.RPC:
+      case REQUEST_CONTEXT_TYPE.WS:
+        return this.handleRpcOrWsException(exception);
+      default:
+        return this.handleGraphQLException(exception);
     }
-
-    if (contextType === 'rpc' || contextType === 'ws') {
-      return this.handleRpcOrWsException(exception);
-    }
-
-    return this.handleGraphQLException(exception);
   }
 
   private handleHttpException(exception: unknown, host: ArgumentsHost): void {
