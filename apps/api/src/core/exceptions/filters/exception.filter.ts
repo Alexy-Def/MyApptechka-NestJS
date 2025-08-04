@@ -2,6 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import { Response } from 'express';
 
 import { InjectLogger, Logger } from '@libs/nestjs-logger';
+import { REQUEST_CONTEXT_TYPE } from '@modules/core/constants';
 import { AbstractError } from '@modules/core/exceptions';
 import { sentry, sentryService } from '@modules/core/sentry';
 
@@ -14,8 +15,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   @sentry()
   catch(exception: unknown, host: ArgumentsHost): void {
-    const ctx = host.switchToHttp();
-    const response: Response = ctx.getResponse();
+    const contextType = host.getType();
+
+    switch (contextType) {
+      case REQUEST_CONTEXT_TYPE.HTTP:
+        return this.handleHttpException(exception, host);
+      case REQUEST_CONTEXT_TYPE.RPC:
+      case REQUEST_CONTEXT_TYPE.WS:
+        return this.handleRpcOrWsException(exception);
+      default:
+        return this.handleGraphQLException(exception);
+    }
+  }
+
+  private handleHttpException(exception: unknown, host: ArgumentsHost): void {
+    const httpContext = host.switchToHttp();
+    const response = httpContext.getResponse<Response>();
 
     if (exception instanceof AbstractError || exception instanceof HttpException) {
       const status = getErrorStatus(exception);
@@ -30,19 +45,29 @@ export class HttpExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    if (exception instanceof Error) {
-      this.logger.error(exception, exception.stack);
-      sentryService.error(exception);
-    } else {
-      // case if not error was thrown, example: throw 'string_not_error'
-      sentryService.error(new Error(exception?.toString() ?? 'UNKNOWN_ERROR'));
-    }
+    const error = exception instanceof Error ? exception : new Error(String(exception));
+    this.logger.error(error, error.stack);
+    sentryService.error(error);
 
     response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       status: HttpStatus.INTERNAL_SERVER_ERROR,
       message: 'Internal Server Error',
     });
+  }
 
-    return;
+  private handleGraphQLException(exception: unknown): void {
+    const error = exception instanceof Error ? exception : new Error(String(exception));
+
+    this.logger.error(`[GraphQL Error] ${error.message}`, error.stack);
+    sentryService.error(error);
+
+    throw exception;
+  }
+
+  private handleRpcOrWsException(exception: unknown): void {
+    const error = exception instanceof Error ? exception : new Error(String(exception));
+
+    this.logger.error(error, error.stack);
+    sentryService.error(error);
   }
 }

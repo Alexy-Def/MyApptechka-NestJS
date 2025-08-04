@@ -1,5 +1,9 @@
+import { join } from 'path';
+
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { GraphQLModule } from '@nestjs/graphql';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
@@ -7,6 +11,7 @@ import { ApmModule } from '@libs/apm';
 import { LoggerModule } from '@libs/nestjs-logger';
 import { AidKitModule } from '@modules/aid-kit';
 import { AuthModule } from '@modules/auth';
+import { ENVIRONMENT_NAME } from '@modules/core/constants';
 import { ExceptionsModule } from '@modules/core/exceptions';
 import { AppLoggerFactory, LoggingInterceptor } from '@modules/core/logger';
 import { SentryModule } from '@modules/core/sentry';
@@ -15,9 +20,10 @@ import { GeneralModule } from '@modules/general';
 import { HealthCheckModule } from '@modules/health-check';
 import { NewsModule } from '@modules/news';
 import { NotificationModule } from '@modules/notifications';
+import { PharmacyModule } from '@modules/pharmacy';
 import { RedisModule } from '@modules/redis';
 import { UsersModule } from '@modules/users';
-import { APM } from 'config';
+import { APM, GRAPHQL, ENVIRONMENT } from 'config';
 import ormconfig from 'ormconfig';
 
 @Module({
@@ -44,6 +50,15 @@ import ormconfig from 'ormconfig';
     NewsModule,
     NotificationModule,
     ScheduleModule.forRoot(),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), GRAPHQL.SCHEMA_PATH),
+      playground: ENVIRONMENT !== ENVIRONMENT_NAME.PRODUCTION,
+      sortSchema: true,
+      introspection: true,
+      debug: ENVIRONMENT !== ENVIRONMENT_NAME.PRODUCTION,
+    }),
+    PharmacyModule,
   ],
   controllers: [],
   providers: [

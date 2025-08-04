@@ -92,4 +92,8 @@ declare module 'config' {
     readonly AUTH: string;
     readonly AID_KIT: string;
   };
+
+  export const GRAPHQL: {
+    readonly SCHEMA_PATH: string;
+  };
 }
