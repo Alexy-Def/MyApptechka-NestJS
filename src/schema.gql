@@ -26,7 +26,7 @@ type Pharmacy {
 
 type Query {
   getAllPharmacies: [Pharmacy!]!
-  getPharmacy(id: Int!): Pharmacy!
+  getPharmacy(id: Int!): Pharmacy
 }
 
 input UpdatePharmacyInput {
